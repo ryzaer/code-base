@@ -1,17 +1,33 @@
 <?php
 namespace parse;
-/*--Example segment times--
- *$ ffmpeg -i input -f segment -segment_time 10 -force_key_frames "expr:gte(t,n_forced*4)" -reset_timestamps 1 output_%04d.mp4
- *--Converting an HLS (m3u8) to MP4--
- *$ ffmpeg -i "file:///F:/WEB/@PROJECT_WEBS/@class.collections/assets/videos/hls.example/play1.m3u8" -acodec copy -bsf:a aac_adtstoasc -vcodec copy out.mp4
- *$ ffmpeg -i "http://host/folder/file.m3u8" -bsf:a aac_adtstoasc -vcodec copy -c copy -crf 18 file.mp4
- *--Convert to animated gif
- *ffmpeg -ss 30 -t 3 -i input.mp4 -vf "fps=10,scale=320:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" -loop 0 output.gif
- *--Convert image to webp
- *ffmpeg -i image.jpg{png.. non animated} -c:v libwebp -quality 50 output.webp // quality default 75
- *ffmpeg -i image.gif{animated} -c:v libwebp -lossless 1 -loop 0 output.webp
- *--Draw text with background color (5 scnd)
- *ffmpeg -f lavfi -i "color=color=red:1280x720, drawtext=enable='gte(t,0)': text=Text7: fontfile=C\\:/@rial.ttf: y=(h/2)-(th/2): x=(w/2)-(tw/2): fontcolor=white: fontsize=50" -t 5 Output.mp4
+/**
+ * Example Use
+ * 
+ * parse\ffmpeg::convert(function($x){
+ *		$folder = "D:/riza-ttnt/Videos";
+ *		$fname  = "videName";
+ *		$sname  = "$fname";
+ *		//$x->mode('fast');  
+ *		//$x->fps(25);  
+ *		//$x->scale(720);  
+ *		//$x->fixtimecut("-5","+5"); 
+ *		//$x->moveto("$folder/$fname-proc.mp4")->save();   
+ *		$x->param("$folder/$sname.mp4","$fname-cut.mp4")->split([
+ *			// dont remove this example 
+ *			//["00:00.000","00:00.000",true,"$fname-scane-%s.mp4"],  
+ *			["35:53.525","37:55.024",true,"$fname-scane-%s.mp4"],
+ *			["01:07:29.385","01:08:19.377"],
+ *			["01:10:33.000","01:11:43.314"],
+ *			["01:13:23.703","01:14:35.497",true,"$fname-scane-%s.mp4"],
+ *			["01:22:03.343","01:23:05.981"],
+ *			["01:23:19.361","01:24:26.122",true,"$fname-scane-%s.mp4"],
+ *			["01:54:19.091","01:57:24.896",true,"$fname-scane-%s.mp4"],
+ *			["01:59:35.291","01:59:53.683"],
+ *			["02:01:28.144","02:05:46.278",true,"$fname-scane-%s.mp4"],
+ *			["02:10:33.149","02:11:51.425",true,"$fname-scane-%s.mp4"],			
+ *		])->print();
+ *	});
+ * 
  */
 class ffmpeg {
 
@@ -27,8 +43,10 @@ class ffmpeg {
 			$save,
 			$unlink,
 			$crop,
+			$rmv,
 			$animated,
 			$fixed_time=["+",0,"+",0],
+			$split_as = "avi",
 			$cycle = 1;
 	public $force,$obj=[],$fps=null;
 	// public function __construct(){
@@ -41,28 +59,31 @@ class ffmpeg {
 		}
 		self::$ins->obj  = isset($callback[0]) && is_object($callback[0]) ? $callback[0] : null;	
 		if(self::$ins->obj){
-			foreach ($callback as $call) {			
-				self::$ins->codec 	= "-c:v copy -c:a aac -b:a 96k";
-				self::$ins->input 	= null;
-				self::$ins->output 	= null;
-				self::$ins->split 	= [];		
-				self::$ins->scale 	= null;
-				self::$ins->crop 	= null;
-				self::$ins->move 	= null;		
-				self::$ins->hls 	= null;		
-				self::$ins->gif 	= null;			
-				self::$ins->webp 	= null;		
-				self::$ins->save 	= false;	
-				self::$ins->unlink 	= false;
+			self::$ins->split = [];
+			self::$ins->input 	= null;
+			self::$ins->output 	= null;
+			self::$ins->gif 	= null;			
+			self::$ins->rmv 	= preg_match('/WIN/',PHP_OS) ? "del" : "rm -rf" ;			
+			self::$ins->move 	= null;		
+			self::$ins->webp 	= null;		
+			self::$ins->save 	= false;	
+			self::$ins->unlink 	= false;
+			self::$ins->codec 	= "-c:v copy -c:a aac -b:a 96k";
+			
+			foreach ($callback as $call) {	
 				if(is_callable($call)){
 					call_user_func($call, self::$ins);				
 				}
 			}
+		
 		}else{
 			self::$ins->input = isset($callback[0]) && is_string($callback[0]) ? $callback[0] : null;
 			self::$ins->mode  = isset($callback[1]) && is_string($callback[1]) ? $callback[1] : "m3u8_hls";
 			return self::$ins;
 		}
+	}
+	private function os($str){
+		$this->rmv = $str == 'win' ? 'del' : 'rm -rf';
 	}
 	private function time_format($str_time, $implode=false){
 		$timearr    = explode(":",$str_time);   
@@ -142,7 +163,7 @@ class ffmpeg {
 	public function mode($str,$codec=null){
 		// params : fast, m3u8_hls, image_gif, image_webp
 		$this->mode = is_string($str) ? $str : null;
-		$this->codec = is_string($codec) ? $codec : $this->codec ;
+		$this->codec = $codec ? $codec : $this->codec ;
 		if($this->mode == "m3u8_hls"){			
 			// -start_number 1 -hls_segment_filename filename-%3d.ts meaning 3digits for auto numbering start from 1 devault 0
 			//$this->output = "ffmpeg -y -i \"{$this->input}\" $codec -f hls -g 2 -hls_time 10 -hls_list_size 0 -start_number 1 -hls_segment_filename";
@@ -177,6 +198,18 @@ class ffmpeg {
 		return $int && $int > 9 ? strval($int) : "0$int" ;
 	}
 	public function print($save=false){
+		$avimod = false;
+		foreach(["scale","crop","fps","hls"] as $prms){			
+			// jika custom scale atau crop atau hls parameter ada maka
+			// akan fitur split avi tidak lagi dilanjutkan
+			if(!isset($this->$prms))
+				$this->$prms = null;
+			if($this->$prms)
+				$avimod = true;
+		}
+		if($avimod)
+			$this->split_as = "ts";
+		// var_dump($this);die;
 		// $fileExt =".ts";
 		$vfilter =null;
 		$vdcodec =null;
@@ -217,12 +250,12 @@ class ffmpeg {
 			foreach ($this->split as $key => $val ) {
 				$alts = $this->input ; 
 				$scns = null;
-				$seri = ($num+1).".ts";
+				$seri = ($num+1).".{$this->split_as}";
 				$fstr = $sum > 0 ? $seri : $this->output;
-				$fmpg = '-c:v libx265 -crf 20 -c:a aac -b:a 96k';
+				$fmpg = $this->split_as == "avi" ? '-c copy' :  '-c:v libx265 -crf 20 -c:a aac -b:a 96k';
 				//$fmpg = '-c:v libx264 -b:v 2200k -c:a aac -b:a 96k';
 				//$fmpg = '-c:v libx264 -crf 20 -c:a aac -b:a 96k';
-				$fcod = $this->mode == 'fast' ? '-c copy' : ($sum > 0 ? '-q:v 0' : $fmpg) ;
+				$fcod = $this->mode == 'fast' ? ($this->split_as == "avi" ? "-q:v 0 ":null)."-c copy" : ($sum > 0 ? "-q:v 0".($this->split_as == "avi" ? " -c copy":null) : $fmpg) ;
 				if(is_string($val[2]) && $val[2]){
 					$alts = preg_replace('~[\\\]~','/',$val[2]);
 				}	
@@ -237,12 +270,12 @@ class ffmpeg {
 						$end = true;
 					}				
 					$scns = preg_replace('~[\\\]~','/',$val[3],$num);
-					$file = $this->str_range(1,$seri,1,".ts");
+					$file = $this->str_range(1,$seri,1,".{$this->split_as}");
 					$cons = implode("|", $file);
 					$rmvs = implode(" ", $file);
-					if(preg_match('/\.ts/',$fstr)){
+					if(preg_match("/\.{$this->split_as}/",$fstr)){
 						$scns = sprintf($scns,$this->counts($nux+1));
-						$arr[] =  "<div>ffmpeg -i \"concat:$cons\" ".($this->mode == 'fast' ? '-c copy' : $fmpg )." \"$scns\" && rm -rf $rmvs</div>";	
+						$arr[] =  "<div>ffmpeg -i \"concat:$cons\" ".($this->mode == 'fast' ? '-c copy ' : $fmpg).($this->split_as == "avi" ? ' -use_wallclock_as_timestamps 1 ':null)." \"$scns\" && {$this->rmv} $rmvs</div>";	
 						$nux++;
 					}				
 					$num = 0;
@@ -250,12 +283,12 @@ class ffmpeg {
 					$num++;
 				}
 				if(!$end && $key == $sum && $sum > 0){
-					$file = $this->str_range(1,$seri,1,".ts");
+					$file = $this->str_range(1,$seri,1,".{$this->split_as}");
 					$cons = implode("|", $file);
 					$rmvs = implode(" ", $file);
-					if(preg_match('/\.ts/',$fstr)){
+					if(preg_match("/\.{$this->split_as}/",$fstr)){
 						$this->output = sprintf($this->output,$this->counts($nuy+1));
-						$arr[] =  "<div>ffmpeg -i \"concat:$cons\" ".($this->mode == 'fast' ? '-c copy' : $fmpg )." \"{$this->output}\" && rm -rf $rmvs</div>";
+						$arr[] =  "<div>ffmpeg -i \"concat:$cons\" ".($this->mode == 'fast' ? '-c copy' : $fmpg )." \"{$this->output}\" && {$this->rmv} $rmvs</div>";
 						$nuy++;
 					}
 					$num++;
@@ -267,7 +300,7 @@ class ffmpeg {
 			}
 			
 			if($this->unlink){
-				$arr[] = "rm -rf \"{$this->input}\"";
+				$arr[] = "{$this->rmv} \"{$this->input}\"";
 			}			
 		}
 		print implode("\n",$arr);

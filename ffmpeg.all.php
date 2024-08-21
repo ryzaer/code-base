@@ -23,8 +23,8 @@ parse\ffmpeg::convert(function($x){
     $fname  = "Beauty and the Beast 2017";
     $sname  = "$fname";
     //$x->mode('fast');  
-    //$x->fps(25);  
-    //$x->scale(720);  
+    // $x->fps(25);  
+    // $x->scale(720);  
     //$x->fixtimecut("-5","+5"); 
     //$x->moveto("$folder/$fname-proc.mp4")->save();   
     $x->param("$folder/$sname.mp4","$fname-cut.mp4")->split([
