@@ -1,0 +1,1 @@
+<?php echo 'Who am i ? <i>'.\__fn::sysinfo().'</i>';
