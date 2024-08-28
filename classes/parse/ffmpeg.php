@@ -136,8 +136,12 @@ class ffmpeg {
 		foreach ((isset($param[0]) && is_array($param[0])? $param[0] : $param ) as $num => $value) {
 			$time1 = $this->time2scnd($value[0]);
 			$time2 = $this->time2scnd($value[1]) - $time1 ;
-			$fcut1 = $this->fixed_time[0] == "-" ? $time1 - $this->fixed_time[1] : $time1 + $this->fixed_time[1]; 	
+			$fcut1 = $this->fixed_time[0] == "-" ? $time1 - $this->fixed_time[1] : $time1 + $this->fixed_time[1]; 
+			if($this->split_as == "avi")
+				$fcut1 = $fcut1 + 1.5;			
 			$fcut2 = $this->fixed_time[2] == "-" ? $time2 - $this->fixed_time[3] : $time2 + $this->fixed_time[3]; 
+			if($this->split_as == "avi")
+				$fcut2 = $fcut2 - 1.5;	
 			$args1 = isset($value[2]) ? $value[2] : null;
 			$args2 = isset($value[3]) ? $value[3] : null;
 			// sampai disini untuk membuat scene automatis
@@ -275,7 +279,9 @@ class ffmpeg {
 					$rmvs = implode(" ", $file);
 					if(preg_match("/\.{$this->split_as}/",$fstr)){
 						$scns = sprintf($scns,$this->counts($nux+1));
-						$arr[] =  "<div>ffmpeg -i \"concat:$cons\" ".($this->mode == 'fast' ? '-c copy ' : $fmpg).($this->split_as == "avi" ? ' -use_wallclock_as_timestamps 1 ':null)." \"$scns\" && {$this->rmv} $rmvs</div>";	
+						$arr[] =  "<div>ffmpeg -i \"concat:$cons\" ".($this->mode == 'fast' ? '-c copy ' : $fmpg).($this->split_as == "avi" ? ' -fflags +genpts ':null)." \"$scns\" && {$this->rmv} $rmvs</div>";	
+						// $arr[] =  "<div>ffmpeg -i \"concat:$cons\" ".($this->mode == 'fast' ? '-c copy ' : $fmpg).($this->split_as == "avi" ? ' -use_wallclock_as_timestamps 1 ':null)." \"$scns\" && {$this->rmv} $rmvs</div>";	
+						// $arr[] =  "<div>ffmpeg -i \"concat:$cons\" ".($this->mode == 'fast' ? '-c copy ' : $fmpg)." \"$scns\" && {$this->rmv} $rmvs</div>";	
 						$nux++;
 					}				
 					$num = 0;
@@ -307,10 +313,7 @@ class ffmpeg {
 		if($this->save){
 			$def = is_string($this->save)? $this->save : 'C:\Action!\Video';
 			$dir = preg_replace('~[\\\]~','/',$def);
-			$ext = 'sh';
-			if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-				$ext = 'bat';
-			} 		
+			$ext = preg_match('/WIN/',PHP_OS) ? "bat" : 'sh';
 			if($this->cycle <= 1){
 				$scrpt = implode("\n",$arr);
 				$this->cycle = $this->cycle + 1;

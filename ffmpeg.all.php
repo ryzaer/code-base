@@ -14,13 +14,13 @@ include_once('autobase.php');
 // for hls parse\ffmpeg::convert("file_video.mp4")->hls()->export("folder/filename");
 //
 parse\ffmpeg::convert(function($x){
-    $folder = 'E:\@MYPROJECT\DATABASE_NAMA\videobind_02_jav\@shrinking_plan';
-    //$folder = 'E:\@MYPROJECT\DATABASE_NAMA\videobind_02_jav\@shrinking_plan\@wait';
+    $folder = 'G:\@MYPROJECT\DATABASE_NAMA\videobind_02_jav\@shrinking_plan';
+    //$folder = 'G:\@MYPROJECT\DATABASE_NAMA\videobind_02_jav\@shrinking_plan\@wait';
     //$folder = 'G:\@Backup_WWW\asin_ebook\edited\videobind_03_jav\uncomprez';
     //$folder = 'G:\@Backup_WWW\asin_ebook\edited\vidBind\@ENTITY';
     //$folder = 'C:\Action!\Video'; 
-    $folder = "D:/riza-ttnt/Videos";
-    $fname  = "Beauty and the Beast 2017";
+    // $folder = "D:/riza-ttnt/Videos";
+    $fname  = "HND-748";
     $sname  = "$fname";
     //$x->mode('fast');  
     // $x->fps(25);  
@@ -29,17 +29,24 @@ parse\ffmpeg::convert(function($x){
     //$x->moveto("$folder/$fname-proc.mp4")->save();   
     $x->param("$folder/$sname.mp4","$fname-cut.mp4")->split([
         // dont remove this example 
-        //["00:00.000","00:00.000",true,"$fname-scane-%s.mp4"],  
-        ["35:53.525","37:55.024",true,"$fname-scane-%s.mp4"],
-        ["01:07:29.385","01:08:19.377"],
-        ["01:10:33.000","01:11:43.314"],
-        ["01:13:23.703","01:14:35.497",true,"$fname-scane-%s.mp4"],
-        ["01:22:03.343","01:23:05.981"],
-        ["01:23:19.361","01:24:26.122",true,"$fname-scane-%s.mp4"],
-        ["01:54:19.091","01:57:24.896",true,"$fname-scane-%s.mp4"],
-        ["01:59:35.291","01:59:53.683"],
-        ["02:01:28.144","02:05:46.278",true,"$fname-scane-%s.mp4"],
-        ["02:10:33.149","02:11:51.425",true,"$fname-scane-%s.mp4"],
+        //["00:00.000","00:00.000",true,"$fname-scane-%s.mp4"], 
         
+        ["18:55.684","19:25.180"],
+        
+        ["21:59.640","23:21.871"],
+        ["30:31.300","31:25.486",true,"$fname-scane-%s.mp4"],
+        ["34:31.063","35:24.432"],
+        ["37:16.646","39:00.549",true,"$fname-scane-%s.mp4"],
+        ["46:10.904","47:24.635"],
+        ["48:33.605","51:11.040",true,"$fname-scane-%s.mp4"],
+        ["01:18:17.719","01:19:17.953",true,"$fname-scane-%s.mp4"],
+        ["01:22:35.030","01:28:31.252",true,"$fname-scane-%s.mp4"],
+        ["01:30:27.706","01:32:48.819"],
+        ["01:34:23.409","01:35:43.651"],
+        ["01:38:00.338","01:39:17.010",true,"$fname-scane-%s.mp4"],
+        ["01:41:32.312","01:44:10.034"],
+        ["01:45:47.960","01:46:18.588"],
+        ["01:47:42.079","01:48:36.707",true,"$fname-scane-%s.mp4"],
+        ["01:53:21.057","01:56:42.796",true,"$fname-scane-%s.mp4"],
     ])->print();
 });
