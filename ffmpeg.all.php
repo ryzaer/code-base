@@ -15,29 +15,31 @@ include_once('autobase.php');
 //
 parse\ffmpeg::convert(function($x){
     $folder = 'G:\.lua\videobind_02_jav\@shrinking_plan';
-    //$folder = 'G:\@MYPROJECT\DATABASE_NAMA\videobind_02_jav\@shrinking_plan\@wait';
+    $folder = 'I:\Videos\@Movies\BARAT\@best';
     //$folder = 'G:\@Backup_WWW\asin_ebook\edited\videobind_03_jav\uncomprez';
     //$folder = 'G:\@Backup_WWW\asin_ebook\edited\vidBind\@ENTITY';
     //$folder = 'C:\Action!\Video'; 
     // $folder = "D:/riza-ttnt/Videos";
-    $fname  = "WANZ-979";
+    $fname  = "Justice League (2021)";
     $sname  = "$fname";
     $fmove  = "$sname";
-    // $fmove  = "D:/$sname";
-    //$x->mode('fast');  
-    // $x->fps(25);  
-    // $x->scale(720);  
-    //$x->fixtimecut("-5","+5"); 
-    //$x->moveto("$folder/$fname-proc.mp4")->save();   
+    // $fmove = "D:/$sname";
+    $x->mode('avi'); // params : avi, m3u8_hls, image_gif, image_webp   
+    // $x->fps(25);  // mode avi will ignored if have valie
+    // $x->scale(720);  // mode avi will ignored if have valie
+    // $x->fixtimecut("-5","+5");
+    // $x->moveto("$folder/$fname-proc.mp4")->save();   
     // $x->param("$folder/$sname.mp4","$fname-cut.mp4")->split([
     $x->param("$folder/$sname.mp4","$fname-cut.mp4")->split([
         // dont remove this example 
         //["00:00.000","00:00.000",true,"$fname-scane-%s.mp4"], 
-        ["45:19.871","45:49.071"],
-        ["46:24.442","47:23.249"],
-        ["49:13.819","50:16.471",true,"$fmove-scane-%s.mp4"],
-        ["01:16:52.161","01:17:20.357",true,"$fmove-scane-%s.mp4"],
-        ["01:44:55.130","01:45:47.004",true,"$fmove-scane-%s.mp4"],
+        ["18:47.545","18:51.651"],
+        ["18:55.006","19:00.182"],
+        ["24:36.847","24:41.383",true,"$fmove-scane-%s.mp4"],
 
+        ["02:36:26.668","02:38:26.668"],
+        ["02:40:26.668","02:45:26.668"],
+        ["02:50:26.668","02:56:26.668",true,"$fmove-scane-%s.mp4"],
+        
     ])->print();
 });

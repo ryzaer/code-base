@@ -7,7 +7,7 @@ namespace parse;
  *		$folder = "D:/riza-ttnt/Videos";
  *		$fname  = "videName";
  *		$sname  = "$fname";
- *		//$x->mode('fast');  
+ *		//$x->mode('avi');  
  *		//$x->fps(25);  
  *		//$x->scale(720);  
  *		//$x->fixtimecut("-5","+5"); 
@@ -138,11 +138,11 @@ class ffmpeg {
 			$time1 = $this->time2scnd($value[0]);
 			$time2 = $this->time2scnd($value[1]) - $time1 ;
 			$fcut1 = $this->fixed_time[0] == "-" ? $time1 - $this->fixed_time[1] : $time1 + $this->fixed_time[1]; 
-			// if($this->split_as == "avi")
-			// 	$fcut1 = $fcut1 + 1.5;			
+			if($this->split_as == "avi")
+				$fcut1 = $fcut1 + 1.5;			
 			$fcut2 = $this->fixed_time[2] == "-" ? $time2 - $this->fixed_time[3] : $time2 + $this->fixed_time[3]; 
-			// if($this->split_as == "avi")
-			// 	$fcut2 = $fcut2 - 1.5;	
+			if($this->split_as == "avi")
+				$fcut2 = $fcut2 - 1.5;	
 			$args1 = isset($value[2]) ? $value[2] : null;
 			$args2 = isset($value[3]) ? $value[3] : null;
 			$args2 = isset($value[3]) ? $value[3] : null;
@@ -168,7 +168,7 @@ class ffmpeg {
 		return $this;
 	}
 	public function mode($str,$codec=null){
-		// params : fast, m3u8_hls, image_gif, image_webp
+		// params : avi, m3u8_hls, image_gif, image_webp
 		$this->mode = is_string($str) ? $str : null;
 		$this->codec = $codec ? $codec : $this->codec ;
 		if($this->mode == "m3u8_hls"){			
@@ -205,6 +205,7 @@ class ffmpeg {
 		return $int && $int > 9 ? strval($int) : "0$int" ;
 	}
 	public function print($save=false){
+		$this->split_as = $this->mode == 'avi' ?  'avi' : 'ts';		
 		$avimod = false;
 		foreach(["scale","crop","fps","hls"] as $prms){			
 			// jika custom scale atau crop atau hls parameter ada maka
@@ -255,16 +256,18 @@ class ffmpeg {
 			$nux = 0;
 			$nuy = 0;
 			$sum = count($this->split)-1;
+			// $lib = $this->split_as == "avi" ? '-map 0:v -map 0:a -map 0:s -c:v copy -c:a aac -b:a 84k -c:s mov_text' : '-c:v libx264 -c:a aac -b:a 84k';
+			$lib = $this->split_as == "avi" ? '-q:v 0 -c copy' : '-c:v libx264 -c:a aac -b:a 84k -crf 20';
+			//$lib = '-c:v libx264 -b:v 2200k -c:a aac -b:a 96k';
+			// $lib = '-c:v libx264 -crf 20 -c:a aac -b:a 96k';
 			foreach ($this->split as $key => $val ) {
 				$alts = $this->input ; 
 				$scns = null;
 				$seri = ($num+1).".{$this->split_as}";
-				$fstr = $sum > 0 ? $seri : $this->output;
-				$fmpg = $this->split_as == "avi" ? '-c copy' :  '-c:v libx265 -crf 20 -c:a aac -b:a 96k';
-				//$fmpg = '-c:v libx264 -b:v 2200k -c:a aac -b:a 96k';
-				//$fmpg = '-c:v libx264 -crf 20 -c:a aac -b:a 96k';
-				$fcod = $this->mode == 'fast' ? ($this->split_as == "avi" ? "-q:v 0 ":null)."-c copy" : ($sum > 0 ? ($this->split_as == "avi" ? " -c:v libx264 -c:a aac -b:a 84k -map 0":" -q:v 0") : $fmpg) ;
-				// $fcod = $this->mode == 'fast' ? ($this->split_as == "avi" ? "-q:v 0 ":null)."-c copy" : ($sum > 0 ? ($this->split_as == "avi" ? " -acodec copy -f segment -vcodec copy -reset_timestamps 1 -map 0":" -q:v 0") : $fmpg) ;
+				$fstr = $sum > 0 ? $seri : $this->output;				
+				$fmpg = $this->split_as == "avi" ? '-c copy' : $lib;				
+				$fcod = $sum > 0 ? ($this->split_as == "avi" ? " $lib":"-q:v 0") : $lib ;
+				$tsmd = $this->split_as == "avi" ? null : "$lib ";
 				if(is_string($val[2]) && $val[2]){
 					$alts = preg_replace('~[\\\]~','/',$val[2]);
 				}	
@@ -272,7 +275,7 @@ class ffmpeg {
 				if($val[1] == 0){
 					$red_color = " style=\"color:red\"";
 				} 
-				$arr[] = "<div$red_color>ffmpeg -ss {$val[0]} -i \"{$alts}\" $fcod {$vfilter}{$imgloop}-t {$val[1]} $fstr</div>";
+				$arr[] = "<div$red_color>ffmpeg -ss {$val[0]} -i \"{$alts}\" $fcod {$vfilter}{$imgloop}{$tsmd}-t {$val[1]} $fstr</div>";
 				$end = false;
 				if(is_string($val[3]) && $val[3]){	
 					if($key == $sum && $sum > 0){
@@ -280,13 +283,21 @@ class ffmpeg {
 					}				
 					$scns = preg_replace('~[\\\]~','/',$val[3],$num);
 					$file = $this->str_range(1,$seri,1,".{$this->split_as}");
+					$filt = null;
+					// if($this->split_as == 'ts'){
+						$fcon = [];
+						for ($i=0; $i < count($file); $i++) { 
+							$fcon[]="[$i:v:0][$i:a:0]";
+						}			
+						$filt = '-filter_complex "'.implode('',$fcon).'concat=n=3:v=1:a=1[v][a]" -map "[v]" -map "[a]"';
+					// }
 					$cons = implode("|", $file);
+					$mcon = implode(" -i ", $file);
 					$rmvs = implode(" ", $file);
 					if(preg_match("/\.{$this->split_as}/",$fstr)){
 						$scns = sprintf($scns,$this->counts($nux+1));
-						$arr[] =  "<div>ffmpeg -i \"concat:$cons\" ".($this->mode == 'fast' ? '-c copy ' : $fmpg).($this->split_as == "avi" ? ' -fflags +genpts ':null)." \"$scns\" && {$this->rmv} $rmvs</div>";	
-						// $arr[] =  "<div>ffmpeg -i \"concat:$cons\" ".($this->mode == 'fast' ? '-c copy ' : $fmpg).($this->split_as == "avi" ? ' -use_wallclock_as_timestamps 1 ':null)." \"$scns\" && {$this->rmv} $rmvs</div>";	
-						// $arr[] =  "<div>ffmpeg -i \"concat:$cons\" ".($this->mode == 'fast' ? '-c copy ' : $fmpg)." \"$scns\" && {$this->rmv} $rmvs</div>";	
+						// $arr[] =  "<div>ffmpeg -i $mcon $filt \"$scns\" && {$this->rmv} $rmvs</div>";	
+						$arr[] =  "<div>ffmpeg ".($this->split_as == "avi" ? "-fflags +genpts+igndts -i \"concat:$cons\" -c copy": "-i $mcon $filt")." \"$scns\" && {$this->rmv} $rmvs</div>";	
 						$nux++;
 					}				
 					$num = 0;
@@ -299,7 +310,7 @@ class ffmpeg {
 					$rmvs = implode(" ", $file);
 					if(preg_match("/\.{$this->split_as}/",$fstr)){
 						$this->output = sprintf($this->output,$this->counts($nuy+1));
-						$arr[] =  "<div>ffmpeg -i \"concat:$cons\" ".($this->mode == 'fast' ? '-c copy' : $fmpg )." \"{$this->output}\" && {$this->rmv} $rmvs</div>";
+						$arr[] =  "<div>ffmpeg -i \"concat:$cons\" ".($this->split_as == "avi" ? $fmpg : '-c copy' )." \"{$this->output}\" && {$this->rmv} $rmvs</div>";
 						$nuy++;
 					}
 					$num++;
@@ -316,7 +327,7 @@ class ffmpeg {
 		}
 		print implode("\n",$arr);
 		if($this->save){
-			$def = is_string($this->save)? $this->save : 'C:\Action!\Video';
+			$def = is_string($this->save)? $this->save : '/dir/output';
 			$dir = preg_replace('~[\\\]~','/',$def);
 			$ext = preg_match('/WIN/',PHP_OS) ? "bat" : 'sh';
 			if($this->cycle <= 1){
