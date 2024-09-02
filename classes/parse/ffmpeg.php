@@ -42,6 +42,8 @@ class ffmpeg {
 		    $mode,
 			$save,
 			$unlink,
+			$fname, // for video name
+			$cname, // new name on asplit
 			$crop,
 			$rmv,
 			$animated,
@@ -61,7 +63,6 @@ class ffmpeg {
 		if(self::$ins->obj){
 			self::$ins->split = [];
 			self::$ins->input 	= null;
-			self::$ins->output 	= null;
 			self::$ins->gif 	= null;			
 			self::$ins->rmv 	= preg_match('/WIN/',PHP_OS) ? "del" : "rm -rf" ;			
 			self::$ins->move 	= null;		
@@ -144,9 +145,11 @@ class ffmpeg {
 				$fcut2 = $fcut2 - 1.5;	
 			$args1 = isset($value[2]) ? $value[2] : null;
 			$args2 = isset($value[3]) ? $value[3] : null;
+			$args2 = isset($value[3]) ? $value[3] : null;
 			// sampai disini untuk membuat scene automatis
 			$this->split[] = [($fcut1 > 0 ? $fcut1 : 0),($fcut2 > 0 ? $fcut2 : 0),$args1,$args2];
 		}
+		// var_dump($this->split);
 		return $this;
 	}
 	public function moveto($destination){
@@ -246,6 +249,7 @@ class ffmpeg {
 		$this->mode = !$vfilter ? $this->mode : null; 
 		$this->save = $save;
 		$arr = []; 
+		
 		if($this->split){
 			$num = 0;
 			$nux = 0;
@@ -259,7 +263,7 @@ class ffmpeg {
 				$fmpg = $this->split_as == "avi" ? '-c copy' :  '-c:v libx265 -crf 20 -c:a aac -b:a 96k';
 				//$fmpg = '-c:v libx264 -b:v 2200k -c:a aac -b:a 96k';
 				//$fmpg = '-c:v libx264 -crf 20 -c:a aac -b:a 96k';
-				$fcod = $this->mode == 'fast' ? ($this->split_as == "avi" ? "-q:v 0 ":null)."-c copy" : ($sum > 0 ? "-q:v 0".($this->split_as == "avi" ? " -c copy":null) : $fmpg) ;
+				$fcod = $this->mode == 'fast' ? ($this->split_as == "avi" ? "-q:v 0 ":null)."-c copy" : ($sum > 0 ? ($this->split_as == "avi" ? " -acodec copy -f segment -vcodec copy -reset_timestamps 1 -map 0":" -q:v 0") : $fmpg) ;
 				if(is_string($val[2]) && $val[2]){
 					$alts = preg_replace('~[\\\]~','/',$val[2]);
 				}	

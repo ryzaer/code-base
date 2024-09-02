@@ -20,33 +20,26 @@ parse\ffmpeg::convert(function($x){
     //$folder = 'G:\@Backup_WWW\asin_ebook\edited\vidBind\@ENTITY';
     //$folder = 'C:\Action!\Video'; 
     // $folder = "D:/riza-ttnt/Videos";
-    $fname  = "HND-748";
+    $fname  = "TOTTE-027";
     $sname  = "$fname";
     //$x->mode('fast');  
     // $x->fps(25);  
     // $x->scale(720);  
     //$x->fixtimecut("-5","+5"); 
     //$x->moveto("$folder/$fname-proc.mp4")->save();   
-    $x->param("$folder/$sname.mp4","$fname-cut.mp4")->split([
+    // $x->param("$folder/$sname.mp4","$fname-cut.mp4")->split([
+    $x->param("$sname.mp4","$fname-cut.mp4")->split([
         // dont remove this example 
         //["00:00.000","00:00.000",true,"$fname-scane-%s.mp4"], 
+        ["18:06.860","19:28.142"],
         
-        ["18:55.684","19:25.180"],
-        
-        ["21:59.640","23:21.871"],
-        ["30:31.300","31:25.486",true,"$fname-scane-%s.mp4"],
-        ["34:31.063","35:24.432"],
-        ["37:16.646","39:00.549",true,"$fname-scane-%s.mp4"],
-        ["46:10.904","47:24.635"],
-        ["48:33.605","51:11.040",true,"$fname-scane-%s.mp4"],
-        ["01:18:17.719","01:19:17.953",true,"$fname-scane-%s.mp4"],
-        ["01:22:35.030","01:28:31.252",true,"$fname-scane-%s.mp4"],
-        ["01:30:27.706","01:32:48.819"],
-        ["01:34:23.409","01:35:43.651"],
-        ["01:38:00.338","01:39:17.010",true,"$fname-scane-%s.mp4"],
-        ["01:41:32.312","01:44:10.034"],
-        ["01:45:47.960","01:46:18.588"],
-        ["01:47:42.079","01:48:36.707",true,"$fname-scane-%s.mp4"],
-        ["01:53:21.057","01:56:42.796",true,"$fname-scane-%s.mp4"],
+        ["34:01.656","35:07.867"],
+        ["37:19.231","39:09.663"],
+        ["40:54.246","43:07.149"],
+        ["46:50.931","53:35.342"],
+        ["54:18.553","54:53.755"],
+        ["01:00:52.741","01:01:39.607"],
+        ["01:02:01.899","01:02:37.760"],
+        ["01:03:13.153","01:06:11.155",true,"$fname-scane-%s.mp4"],
     ])->print();
 });
