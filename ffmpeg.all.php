@@ -14,32 +14,30 @@ include_once('autobase.php');
 // for hls parse\ffmpeg::convert("file_video.mp4")->hls()->export("folder/filename");
 //
 parse\ffmpeg::convert(function($x){
-    $folder = 'G:\@MYPROJECT\DATABASE_NAMA\videobind_02_jav\@shrinking_plan';
+    $folder = 'G:\.lua\videobind_02_jav\@shrinking_plan';
     //$folder = 'G:\@MYPROJECT\DATABASE_NAMA\videobind_02_jav\@shrinking_plan\@wait';
     //$folder = 'G:\@Backup_WWW\asin_ebook\edited\videobind_03_jav\uncomprez';
     //$folder = 'G:\@Backup_WWW\asin_ebook\edited\vidBind\@ENTITY';
     //$folder = 'C:\Action!\Video'; 
     // $folder = "D:/riza-ttnt/Videos";
-    $fname  = "TOTTE-027";
+    $fname  = "WANZ-979";
     $sname  = "$fname";
+    $fmove  = "$sname";
+    // $fmove  = "D:/$sname";
     //$x->mode('fast');  
     // $x->fps(25);  
     // $x->scale(720);  
     //$x->fixtimecut("-5","+5"); 
     //$x->moveto("$folder/$fname-proc.mp4")->save();   
     // $x->param("$folder/$sname.mp4","$fname-cut.mp4")->split([
-    $x->param("$sname.mp4","$fname-cut.mp4")->split([
+    $x->param("$folder/$sname.mp4","$fname-cut.mp4")->split([
         // dont remove this example 
         //["00:00.000","00:00.000",true,"$fname-scane-%s.mp4"], 
-        ["18:06.860","19:28.142"],
-        
-        ["34:01.656","35:07.867"],
-        ["37:19.231","39:09.663"],
-        ["40:54.246","43:07.149"],
-        ["46:50.931","53:35.342"],
-        ["54:18.553","54:53.755"],
-        ["01:00:52.741","01:01:39.607"],
-        ["01:02:01.899","01:02:37.760"],
-        ["01:03:13.153","01:06:11.155",true,"$fname-scane-%s.mp4"],
+        ["45:19.871","45:49.071"],
+        ["46:24.442","47:23.249"],
+        ["49:13.819","50:16.471",true,"$fmove-scane-%s.mp4"],
+        ["01:16:52.161","01:17:20.357",true,"$fmove-scane-%s.mp4"],
+        ["01:44:55.130","01:45:47.004",true,"$fmove-scane-%s.mp4"],
+
     ])->print();
 });
