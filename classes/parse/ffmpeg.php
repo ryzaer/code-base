@@ -50,6 +50,7 @@ class ffmpeg {
 			$animated,
 			$fixed_time=[0,0],
 			$split_as = "ts",
+			$cmfps = 30,// custom mode fps
 			$cycle = 1;
 	public $force,$obj=[],$fps=null;
 	// public function __construct(){
@@ -87,25 +88,10 @@ class ffmpeg {
 	private function os($str){
 		$this->rmv = $str == 'win' ? 'del' : 'rm -rf';
 	}
-	private function time_format($str_time, $implode=false){
-		$timearr    = explode(":",$str_time);   
-		$timerpt    = count($timearr) <= 2 ? str_repeat("00:", 2 - count($timearr) + 1) : null;
-		$exptime    = explode(".", str_replace(',','.',$timerpt.$str_time)); 
-		$timeformat = preg_replace("/^([\d]{1,2})\:([\d]{2})$/", "00:$1:$2",  $exptime[0]);
-		$milisecond = isset($exptime[1])? ( $implode ? substr($exptime[1],0,3) : substr(abs("0.".$exptime[1]),0,5) ) : 0 ; 
-		$format = [
-			$timeformat,
-			$milisecond
-		];
-		if($implode){
-			$format = $timeformat.".".$milisecond;
-		}
-		return $format;
-	}
 	private function time2scnd($str_time = "10:00.45989898"){     
-		$timestr  = $this->time_format($str_time);
-		sscanf($timestr[0], "%d:%d:%d", $hours, $minutes, $seconds);
-		return ($hours * 3600) + ($minutes * 60) + $seconds + $timestr[1];
+		$time = explode(':', $str_time);
+		list($hours, $minutes, $seconds) = count($time) > 2 ? $time : array_merge(["00"],$time);		
+		return ($hours * 3600) + ($minutes * 60) + $seconds;
 	}
 	private function str_range($from,$to,$int,$char)
 	{
@@ -136,17 +122,16 @@ class ffmpeg {
 		foreach ((isset($param[0]) && is_array($param[0])? $param[0] : $param ) as $num => $value) {
 			$time1 = $this->time2scnd($value[0]);
 			$time2 = $this->time2scnd($value[1]) - $time1 ;
-			$fcut1 = $time1 + $this->fixed_time[0];
-			$fcut2 = $time2 + $this->fixed_time[1];
-			if($this->mode == "avi"){
-				$fcut1 = $fcut1 + 0.5;	
-				$fcut2 = $fcut2 - 0.5;
-			}  
+			$fcut1 = number_format($time1 + $this->fixed_time[0],3,".","");
+			$fcut2 = number_format($time2 + $this->fixed_time[1],3,".","");
+			// if($this->mode == "avi"){
+			// 	$fcut1 = $fcut1 + 2.5;	
+			// 	$fcut2 = $fcut2 - 2.5;
+			// }  
 			$args1 = isset($value[2]) ? $value[2] : null;
-			$args2 = isset($value[3]) ? $value[3] : null;
 			$args2 = isset($value[3]) ? $value[3] : null;			
 			// sampai disini untuk membuat scene automatis
-			$this->split[] = [($fcut1 > 0 ? $fcut1 : 0),($fcut2 > 0 ? $fcut2 : 0),$args1,$args2];
+			$this->split[] = [$fcut1,$fcut2,$args1,$args2];
 		}
 		
 		return $this;
@@ -166,10 +151,15 @@ class ffmpeg {
 		$this->unlink = true;
 		return $this;
 	}
-	public function mode($str,$codec=null){
+	public function mode(...$args){
 		// params : avi, m3u8_hls, image_gif, image_webp
-		$this->mode = is_string($str) ? $str : null;
-		$this->codec = $codec ? $codec : $this->codec ;
+		$this->mode = is_string($args[0]) ? $args[0] : null;
+		unset($args[0]);
+		foreach ($args as $val) {			
+			$this->codec = is_string($val) ? $val : $this->codec;
+			$this->cmfps = is_numeric($val) ? $val : $this->cmfps;
+		}
+
 		if($this->mode == "m3u8_hls"){			
 			// -start_number 1 -hls_segment_filename filename-%3d.ts meaning 3digits for auto numbering start from 1 devault 0
 			//$this->output = "ffmpeg -y -i \"{$this->input}\" $codec -f hls -g 2 -hls_time 10 -hls_list_size 0 -start_number 1 -hls_segment_filename";
@@ -178,7 +168,7 @@ class ffmpeg {
 		if($this->scale && $this->mode == "image_gif"){	
 			// being include on "video filter params [-vf]"	
 			// place function scale after mode function	
-			$codec = is_string($codec) ? $codec : null ;
+			// $codec = is_string($codec) ? $codec : null ;
 			// -start_number 1 -hls_segment_filename filename-%3d.ts meaning 3digits for auto numbering start from 1 devault 0
 			//$this->output = "ffmpeg -y -i \"{$this->input}\" $codec -f hls -g 2 -hls_time 10 -hls_list_size 0 -start_number 1 -hls_segment_filename";
 			$this->gif = "split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse";
@@ -255,7 +245,7 @@ class ffmpeg {
 			$nuy = 0;
 			$sum = count($this->split)-1;
 			// $lib = $this->split_as == "avi" ? '-map 0:v -map 0:a -map 0:s -c:v copy -c:a aac -b:a 84k -c:s mov_text' : '-c:v libx264 -c:a aac -b:a 84k';
-			$lib = $this->split_as == "avi" ? '-q:v 0 -c copy' : '-c:v libx264 -c:a aac -b:a 84k -crf 20';
+			$lib = $this->split_as == "avi" ? '-q:v 0 -c:v libx264 -c:a aac -b:a 84k -crf 20' : '-c:v libx264 -c:a aac -b:a 84k -crf 20';
 			//$lib = '-c:v libx264 -b:v 2200k -c:a aac -b:a 96k';
 			// $lib = '-c:v libx264 -crf 20 -c:a aac -b:a 96k';
 			foreach ($this->split as $key => $val ) {
@@ -281,19 +271,20 @@ class ffmpeg {
 					$scns = preg_replace('~[\\\]~','/',$val[3],$num);
 					$file = $this->str_range(1,$seri,1,".{$this->split_as}");
 					$filt = null;
-					// if($this->split_as == 'ts'){
+					if($this->split_as == 'ts'){
 						$fcon = [];
 						for ($i=0; $i < count($file); $i++) { 
 							$fcon[]="[$i:v:0][$i:a:0]";
 						}			
 						$filt = '-filter_complex "'.implode('',$fcon).'concat=n=3:v=1:a=1[v][a]" -map "[v]" -map "[a]"';
-					// }
+					}
 					$cons = implode("|", $file);
 					$mcon = implode(" -i ", $file);
 					$rmvs = implode(" ", $file);
 					if(preg_match("/\.{$this->split_as}/",$fstr)){
 						$scns = sprintf($scns,$this->counts($nux+1));
 						// $arr[] =  "<div>ffmpeg -i $mcon $filt \"$scns\" && {$this->rmv} $rmvs</div>";	
+						// $arr[] =  "<div>ffmpeg ".($this->split_as == "avi" ? "-fflags +genpts+igndts ": null)."-i \"concat:$cons\" -c copy \"$scns\" && {$this->rmv} $rmvs</div>";	
 						$arr[] =  "<div>ffmpeg ".($this->split_as == "avi" ? "-fflags +genpts+igndts -i \"concat:$cons\" -c copy": "-i $mcon $filt")." \"$scns\" && {$this->rmv} $rmvs</div>";	
 						$nux++;
 					}				

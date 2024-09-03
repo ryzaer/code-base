@@ -1,5 +1,9 @@
 <?php
 include_once('autobase.php');
+$num = 1127/30;
+
+// var_dump(112887-$num);
+
 // example sintax
 // parse\ffmpeg::convert( your_object [optional & only at first param], callback(x) );
 // $x->obj (if has object)
@@ -15,12 +19,12 @@ include_once('autobase.php');
 //
 parse\ffmpeg::convert(function($x){
     $folder = 'G:\.lua\videobind_02_jav\@shrinking_plan';
-    $folder = 'I:\Videos\@Movies\BARAT\@best';
+    // $folder = 'I:\Videos\@Movies\BARAT\@best';
     //$folder = 'G:\@Backup_WWW\asin_ebook\edited\videobind_03_jav\uncomprez';
     //$folder = 'G:\@Backup_WWW\asin_ebook\edited\vidBind\@ENTITY';
     //$folder = 'C:\Action!\Video'; 
     // $folder = "D:/riza-ttnt/Videos";
-    $fname  = "Justice League (2021)";
+    $fname  = "IPX-259";
     $sname  = "$fname";
     $fmove  = "$sname";
     // $fmove = "D:/$sname";
@@ -36,13 +40,9 @@ parse\ffmpeg::convert(function($x){
     $x->param("$folder/$sname.mp4","$fname-cut.mp4")->split([
         // dont remove this example 
         //["00:00.000","00:00.000",true,"$fname-scane-%s.mp4"], 
-        ["18:47.545","18:51.651"],
-        ["18:55.006","19:00.182"],
-        ["24:36.847","24:41.383",true,"$fmove-scane-%s.mp4"],
-
-        ["02:36:26.668","02:38:26.668"],
-        ["02:40:26.668","02:45:26.668"],
-        ["02:50:26.668","02:56:26.668",true,"$fmove-scane-%s.mp4"],
+        ["01:09:49.045","01:10:00.797"],
+        ["01:58:58.451","01:59:17.505"],
+        ["02:33:03.026","02:33:34.023",true,"$fmove-scane-%s.mp4"],
         
     ])->print();
 });
