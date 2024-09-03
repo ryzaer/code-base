@@ -1,5 +1,6 @@
 <?php
 namespace parse;
+
 /**
  * Example Use
  * 
@@ -47,8 +48,8 @@ class ffmpeg {
 			$crop,
 			$rmv,
 			$animated,
-			$fixed_time=["+",0,"+",0],
-			$split_as = "avi",
+			$fixed_time=[0,0],
+			$split_as = "ts",
 			$cycle = 1;
 	public $force,$obj=[],$fps=null;
 	// public function __construct(){
@@ -121,9 +122,7 @@ class ffmpeg {
 		return $this;
 	}	
 	public function fixtimecut(...$arr_time){
-		$time1 = isset($arr_time[0])? [ substr($arr_time[0],0,1), abs(substr($arr_time[0],1)) ]  : ["+",0];
-		$time2 = isset($arr_time[1])? [ substr($arr_time[1],0,1), abs(substr($arr_time[1],1)) ]  : ["+",0];
-		$this->fixed_time = array_merge($time1,$time2);
+		$this->fixed_time = [floatval($arr_time[0]),(isset($arr_time[1])?floatval($arr_time[1]):0)];
 	}
 	public function crop($w,$h,$lr=0,$tb=0)
 	{
@@ -137,19 +136,19 @@ class ffmpeg {
 		foreach ((isset($param[0]) && is_array($param[0])? $param[0] : $param ) as $num => $value) {
 			$time1 = $this->time2scnd($value[0]);
 			$time2 = $this->time2scnd($value[1]) - $time1 ;
-			$fcut1 = $this->fixed_time[0] == "-" ? $time1 - $this->fixed_time[1] : $time1 + $this->fixed_time[1]; 
-			if($this->split_as == "avi")
-				$fcut1 = $fcut1 + 1.5;			
-			$fcut2 = $this->fixed_time[2] == "-" ? $time2 - $this->fixed_time[3] : $time2 + $this->fixed_time[3]; 
-			if($this->split_as == "avi")
-				$fcut2 = $fcut2 - 1.5;	
+			$fcut1 = $time1 + $this->fixed_time[0];
+			$fcut2 = $time2 + $this->fixed_time[1];
+			if($this->mode == "avi"){
+				$fcut1 = $fcut1 + 0.5;	
+				$fcut2 = $fcut2 - 0.5;
+			}  
 			$args1 = isset($value[2]) ? $value[2] : null;
 			$args2 = isset($value[3]) ? $value[3] : null;
-			$args2 = isset($value[3]) ? $value[3] : null;
+			$args2 = isset($value[3]) ? $value[3] : null;			
 			// sampai disini untuk membuat scene automatis
 			$this->split[] = [($fcut1 > 0 ? $fcut1 : 0),($fcut2 > 0 ? $fcut2 : 0),$args1,$args2];
 		}
-		// var_dump($this->split);
+		
 		return $this;
 	}
 	public function moveto($destination){
@@ -217,8 +216,7 @@ class ffmpeg {
 		}
 		if($avimod)
 			$this->split_as = "ts";
-		// var_dump($this);die;
-		// $fileExt =".ts";
+
 		$vfilter =null;
 		$vdcodec =null;
 		$imgloop =null;
@@ -264,9 +262,8 @@ class ffmpeg {
 				$alts = $this->input ; 
 				$scns = null;
 				$seri = ($num+1).".{$this->split_as}";
-				$fstr = $sum > 0 ? $seri : $this->output;				
-				$fmpg = $this->split_as == "avi" ? '-c copy' : $lib;				
-				$fcod = $sum > 0 ? ($this->split_as == "avi" ? " $lib":"-q:v 0") : $lib ;
+				$fstr = $sum > 0 ? $seri : "\"{$this->output}\"";				
+				$fcod = $sum > 0 ? ($this->split_as == "avi" ? " $lib":"-q:v 0") : ($this->split_as == "avi" ? "-q:v 0 -c copy":"-q:v 0 ") ;
 				$tsmd = $this->split_as == "avi" ? null : "$lib ";
 				if(is_string($val[2]) && $val[2]){
 					$alts = preg_replace('~[\\\]~','/',$val[2]);
@@ -310,7 +307,7 @@ class ffmpeg {
 					$rmvs = implode(" ", $file);
 					if(preg_match("/\.{$this->split_as}/",$fstr)){
 						$this->output = sprintf($this->output,$this->counts($nuy+1));
-						$arr[] =  "<div>ffmpeg -i \"concat:$cons\" ".($this->split_as == "avi" ? $fmpg : '-c copy' )." \"{$this->output}\" && {$this->rmv} $rmvs</div>";
+						$arr[] =  "<div>ffmpeg -i \"concat:$cons\" ".($this->split_as == "avi" ? $lib : '-c copy' )." \"{$this->output}\" && {$this->rmv} $rmvs</div>";
 						$nuy++;
 					}
 					$num++;

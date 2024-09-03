@@ -24,10 +24,13 @@ parse\ffmpeg::convert(function($x){
     $sname  = "$fname";
     $fmove  = "$sname";
     // $fmove = "D:/$sname";
+    // in mode avi you will get fast result
+    // but precission depending on fps
     $x->mode('avi'); // params : avi, m3u8_hls, image_gif, image_webp   
-    // $x->fps(25);  // mode avi will ignored if have valie
-    // $x->scale(720);  // mode avi will ignored if have valie
-    // $x->fixtimecut("-5","+5");
+    // $x->fps(27);  // mode avi will ignored if have value
+    // $x->scale(720);  // mode avi will ignored if have value
+    // $x->fixtimecut("-1.5","+1.5");
+    
     // $x->moveto("$folder/$fname-proc.mp4")->save();   
     // $x->param("$folder/$sname.mp4","$fname-cut.mp4")->split([
     $x->param("$folder/$sname.mp4","$fname-cut.mp4")->split([
