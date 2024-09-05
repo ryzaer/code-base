@@ -245,13 +245,13 @@ class ffmpeg {
 			$nuy = 0;
 			$sum = count($this->split)-1;
 			// $lib = $this->split_as == "avi" ? '-map 0:v -map 0:a -map 0:s -c:v copy -c:a aac -b:a 84k -c:s mov_text' : '-c:v libx264 -c:a aac -b:a 84k';
-			$lib = $this->split_as == "avi" ? '-q:v 0 -c:v libx264 -c:a aac -b:a 84k -crf 20' : '-c:v libx264 -c:a aac -b:a 84k -crf 20';
+			$lib = $this->split_as == "avi" ? '-q:v 0 -c copy' : '-c:v libx264 -c:a aac -b:a 84k -crf 20';
 			//$lib = '-c:v libx264 -b:v 2200k -c:a aac -b:a 96k';
 			// $lib = '-c:v libx264 -crf 20 -c:a aac -b:a 96k';
 			foreach ($this->split as $key => $val ) {
 				$alts = $this->input ; 
 				$scns = null;
-				$seri = ($num+1).".{$this->split_as}";
+				$seri = ($num+1).".ts";
 				$fstr = $sum > 0 ? $seri : "\"{$this->output}\"";				
 				$fcod = $sum > 0 ? ($this->split_as == "avi" ? " $lib":"-q:v 0") : ($this->split_as == "avi" ? "-q:v 0 -c copy":"-q:v 0 ") ;
 				$tsmd = $this->split_as == "avi" ? null : "$lib ";
@@ -262,7 +262,9 @@ class ffmpeg {
 				if($val[1] == 0){
 					$red_color = " style=\"color:red\"";
 				} 
-				$arr[] = "<div$red_color>ffmpeg -ss {$val[0]} -i \"{$alts}\" $fcod {$vfilter}{$imgloop}{$tsmd}-t {$val[1]} $fstr</div>";
+
+				$mvi = $this->split_as == 'avi' ? "\n<div$red_color>ffmpeg -i $seri -c copy ".str_replace(".ts" ,".{$this->split_as}", $fstr)." && {$this->rmv} $seri </div>" : null;
+				$arr[] = "<div$red_color>ffmpeg -ss {$val[0]} -i \"{$alts}\" $fcod {$vfilter}{$imgloop}{$tsmd}-t {$val[1]} $fstr</div>$mvi";
 				$end = false;
 				if(is_string($val[3]) && $val[3]){	
 					if($key == $sum && $sum > 0){
@@ -276,12 +278,12 @@ class ffmpeg {
 						for ($i=0; $i < count($file); $i++) { 
 							$fcon[]="[$i:v:0][$i:a:0]";
 						}			
-						$filt = '-filter_complex "'.implode('',$fcon).'concat=n=3:v=1:a=1[v][a]" -map "[v]" -map "[a]"';
+						$filt = '-filter_complex "'.implode('',$fcon).'concat=n='.count($fcon).':v=1:a=1[v][a]" -map "[v]" -map "[a]"';
 					}
 					$cons = implode("|", $file);
 					$mcon = implode(" -i ", $file);
 					$rmvs = implode(" ", $file);
-					if(preg_match("/\.{$this->split_as}/",$fstr)){
+					if(preg_match("/\.ts/",$fstr)){
 						$scns = sprintf($scns,$this->counts($nux+1));
 						// $arr[] =  "<div>ffmpeg -i $mcon $filt \"$scns\" && {$this->rmv} $rmvs</div>";	
 						// $arr[] =  "<div>ffmpeg ".($this->split_as == "avi" ? "-fflags +genpts+igndts ": null)."-i \"concat:$cons\" -c copy \"$scns\" && {$this->rmv} $rmvs</div>";	
@@ -296,7 +298,7 @@ class ffmpeg {
 					$file = $this->str_range(1,$seri,1,".{$this->split_as}");
 					$cons = implode("|", $file);
 					$rmvs = implode(" ", $file);
-					if(preg_match("/\.{$this->split_as}/",$fstr)){
+					if(preg_match("/\.ts/",$fstr)){
 						$this->output = sprintf($this->output,$this->counts($nuy+1));
 						$arr[] =  "<div>ffmpeg -i \"concat:$cons\" ".($this->split_as == "avi" ? $lib : '-c copy' )." \"{$this->output}\" && {$this->rmv} $rmvs</div>";
 						$nuy++;
@@ -313,19 +315,19 @@ class ffmpeg {
 				$arr[] = "{$this->rmv} \"{$this->input}\"";
 			}			
 		}
-		print implode("\n",$arr);
+		$script = implode("\n",$arr);
 		if($this->save){
 			$def = is_string($this->save)? $this->save : '/dir/output';
 			$dir = preg_replace('~[\\\]~','/',$def);
 			$ext = preg_match('/WIN/',PHP_OS) ? "bat" : 'sh';
-			if($this->cycle <= 1){
-				$scrpt = implode("\n",$arr);
-				$this->cycle = $this->cycle + 1;
-			}else{
-				$scrpt = file_get_contents("$dir/exec.$ext")."\n".implode("\n",$arr);			
-			}
-			file_put_contents("$dir/exec.$ext",$scrpt,true);
+			// if($this->cycle <= 1){
+			// 	$scrpt = implode("\n",$arr);
+			// 	$this->cycle = $this->cycle + 1;
+			// }else{
+			// 	$scrpt = file_get_contents("$dir/exec.$ext")."\n".implode("\n",$arr);			
+			// }
+			file_put_contents("$dir/exec.$ext",strip_tags($script),true);
 		}
-		
+		print $script;
 	}
 }
