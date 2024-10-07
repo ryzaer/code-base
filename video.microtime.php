@@ -69,11 +69,12 @@
 </video>
 
 <div id="controls">
-  <button id="playButton">Play</button>
-  <button id="stopButton">Stop</button>
-  <button id="backwardButton">Backward</button>
-  <button id="afterwardButton">Afterward</button>
-  <button id="screenshotButton">Screenshot</button>
+  <button id="playButton">&#9658;</button>
+  <button id="stopButton">&#9724;</button>
+  <button id="backwardButton"><</button>
+  <button id="afterwardButton">></button>
+  <button id="screenshotButton" title="Capture">C</button>
+  <button id="fullscreenButton" title="Fullscreen">Z</button>
 </div>
 
 <div id="timeDisplay">Current Time: 0</div>
@@ -93,6 +94,7 @@
   const backwardButton = document.getElementById('backwardButton');
   const afterwardButton = document.getElementById('afterwardButton');
   const screenshotButton = document.getElementById('screenshotButton');
+  const fullscreenButton = document.getElementById('fullscreenButton');
   const progressBar = document.getElementById('progressBar');
   const progressContainer = document.getElementById('progressContainer');
   const popupScreenshot = document.getElementById('popupScreenshot');
@@ -111,14 +113,22 @@
     timeDisplay.innerText = `Current Time: ${video.currentTime.toFixed(3)}`;
   });
 
+  
+
   // Play button event listener
+  function execPlay(){
+    playButton.innerText = '❚❚';
+    video.play();
+  }
+  function execPause(){
+    playButton.innerText = "►";
+    video.pause();
+  }
   function playOrPlay(){
     if(videoWasPlaying == !video.paused){
-      playButton.innerText = 'Pause';
-      video.play();
+      execPlay()
     }else{
-      playButton.innerText = 'Play';
-      video.pause();
+      execPause()
     } 
   }
   playButton.addEventListener('click', () => {
@@ -127,8 +137,7 @@
 
   // Stop button event listener (Pause and reset video to start)
   stopButton.addEventListener('click', () => {
-    video.pause();
-    playButton.innerText = 'Play';
+    execPause()
     video.currentTime = 0;
     progressBar.style.width = '0%';
   });
@@ -136,13 +145,11 @@
   // Backward button (rewind by 0.025 seconds)
   function rewindVideo() {
     video.currentTime = Math.max(0, video.currentTime - 0.025);  
-    video.pause();
-    playButton.innerText = 'Play';
+    execPause()
   }
   function forwardVideo() {
     video.currentTime = Math.max(0, video.currentTime + 0.025);
-    video.pause();  
-    playButton.innerText = 'Play';
+    execPause()
   }
 
   // Attach the backward functionality to the button
@@ -171,8 +178,7 @@
     const hoverTime = (mousePosition / containerWidth) * video.duration;
 
     videoWasPlaying = !video.paused;
-    video.pause();
-    playButton.innerText = 'Play';
+    execPause()
 
     clearTimeout(hoverTimeout);
     hoverTimeout = setTimeout(() => {
@@ -217,6 +223,24 @@ function GetScreenShot() {
     document.body.appendChild(img);
 }
   screenshotButton.addEventListener('click', GetScreenShot);
+
+  // Fullscreen button event listener
+  fullscreenButton.addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      video.requestFullscreen(); // Enter fullscreen
+    } else {
+      document.exitFullscreen(); // Exit fullscreen
+    }
+  });
+
+  // Fullscreen change event listener to toggle button label
+  document.addEventListener('fullscreenchange', () => {
+    if (document.fullscreenElement) {
+      fullscreenButton.textContent = 'Exit Fullscreen';
+    } else {
+      fullscreenButton.textContent = 'Fullscreen';
+    }
+  });
 
   // Keyboard shortcut for backward (rewind) action
   document.addEventListener('keydown', (event) => {
