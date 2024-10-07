@@ -59,6 +59,9 @@
       max-width: 100px;
       max-height: 56px;
     }
+    body {
+      margin:0
+    }
   </style>
 </head>
 <body>
@@ -76,8 +79,10 @@
   <button id="screenshotButton" title="Capture">C</button>
   <button id="fullscreenButton" title="Fullscreen">Z</button>
 </div>
-
-<div id="timeDisplay">Current Time: 0</div>
+<div style="width:100%;text-align:right;position:absolute">
+  <div id="timeDisplay2">00:00.000 / 00:00.000</div>
+</div>
+<div id="timeDisplay">Time Seconds: 0</div>
 
 <div id="progressContainer">
   <div id="progressBar"></div>
@@ -88,33 +93,56 @@
 </div>
 
 <script>
-  const video = document.getElementById('myVideo');
-  const playButton = document.getElementById('playButton');
-  const stopButton = document.getElementById('stopButton');
-  const backwardButton = document.getElementById('backwardButton');
-  const afterwardButton = document.getElementById('afterwardButton');
-  const screenshotButton = document.getElementById('screenshotButton');
-  const fullscreenButton = document.getElementById('fullscreenButton');
-  const progressBar = document.getElementById('progressBar');
-  const progressContainer = document.getElementById('progressContainer');
-  const popupScreenshot = document.getElementById('popupScreenshot');
-  const popupImage = document.getElementById('popupImage');
-  const timeDisplay = document.getElementById('timeDisplay');
+  const video = document.getElementById('myVideo'),
+        playButton = document.getElementById('playButton'),
+        stopButton = document.getElementById('stopButton'),
+        backwardButton = document.getElementById('backwardButton'),
+        afterwardButton = document.getElementById('afterwardButton'),
+        screenshotButton = document.getElementById('screenshotButton'),
+        fullscreenButton = document.getElementById('fullscreenButton'),
+        progressBar = document.getElementById('progressBar'),
+        progressContainer = document.getElementById('progressContainer'),
+        popupScreenshot = document.getElementById('popupScreenshot'),
+        popupImage = document.getElementById('popupImage'),
+        timeDisplay = document.getElementById('timeDisplay'),
+        timeDisplay2 = document.getElementById('timeDisplay2');
 
-  let videoWasPlaying = false;
-  let hoverTimeout;
+  let videoWasPlaying = false,
+      hoverTimeout;
 
   // Update progress bar as video plays
   video.addEventListener('timeupdate', () => {
     const percent = (video.currentTime / video.duration) * 100;
+    const fixTime = video.currentTime.toFixed(3);
+    const lstTime = getLastMicroTime(fixTime);  
+    const dstTime = getLastMicroTime(video.duration.toFixed(3));  
+    const curTime = secondsToHms(video.currentTime);
+    const durTime = secondsToHms(video.duration);  
+
     progressBar.style.width = `${percent}%`;
-
     // Update the time display
-    timeDisplay.innerText = `Current Time: ${video.currentTime.toFixed(3)}`;
+    timeDisplay.innerText = `Time Seconds: ${fixTime}`;
+    timeDisplay2.innerText = `${curTime}.${lstTime} / ${durTime}.${dstTime}`;
   });
+  video.addEventListener('click', () => {
+    playOrPlay()   
+  });
+  // Format time in MM:SS format
+  function getLastMicroTime(fixTime){
+    var strCurTime = fixTime.toString();
+    return strCurTime.substr(strCurTime.length-3);
+  }
+  function secondsToHms(d) {
+    d = Number(d);
+    var h = Math.floor(d / 3600);
+    var m = Math.floor((d % 3600) / 60);
+    var s = Math.floor((d % 3600) % 60);
+    var hDisplay = (h > 9 ? h : `0${h}`) + ":";
+    var mDisplay = (m > 9 ? m : `0${m}`) + ":";
+    var sDisplay = s > 9 ? s : `0${s}`;
 
-  
-
+    return (hDisplay == "00:" ? "" : hDisplay) + mDisplay + sDisplay;
+  }
   // Play button event listener
   function execPlay(){
     playButton.innerText = '❚❚';
@@ -123,6 +151,11 @@
   function execPause(){
     playButton.innerText = "►";
     video.pause();
+  }
+  function execStop(){
+    execPause()
+    video.currentTime = 0;
+    progressBar.style.width = '0%';
   }
   function playOrPlay(){
     if(videoWasPlaying == !video.paused){
@@ -134,12 +167,11 @@
   playButton.addEventListener('click', () => {
     playOrPlay()   
   });
+  
 
   // Stop button event listener (Pause and reset video to start)
   stopButton.addEventListener('click', () => {
-    execPause()
-    video.currentTime = 0;
-    progressBar.style.width = '0%';
+    execStop()
   });
 
   // Backward button (rewind by 0.025 seconds)
@@ -244,20 +276,27 @@ function GetScreenShot() {
 
   // Keyboard shortcut for backward (rewind) action
   document.addEventListener('keydown', (event) => {
-    event.preventDefault();
     console.log(event.keyCode);
     if (event.key === 'ArrowLeft') {
+      event.preventDefault();
       rewindVideo();
     }
     if (event.key === 'ArrowRight') {
+      event.preventDefault();
       forwardVideo();
     }
     // space key
     if (event.keyCode === 32) {
+      event.preventDefault();
       playOrPlay()  
     }
-    if (event.keyCode === 83) {
+    if (event.keyCode === 67) {
+      event.preventDefault();
       GetScreenShot()
+    }
+    if (event.keyCode === 83) {
+      event.preventDefault();
+      execStop()
     }
   });
 </script>
