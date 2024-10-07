@@ -8,7 +8,7 @@
     /* Style the video */
     video {
       display: block;
-      width: 400px;
+      width: 100vh;
       margin-bottom: 10px;
     }
 
@@ -177,7 +177,7 @@
     const mousePosition = e.offsetX;
     const hoverTime = (mousePosition / containerWidth) * video.duration;
 
-    videoWasPlaying = !video.paused;
+    // videoWasPlaying = !video.paused;
     execPause()
 
     clearTimeout(hoverTimeout);
