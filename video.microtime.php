@@ -8,14 +8,17 @@
     /* Style the video */
     video {
       display: block;
-      width: 100vh;
+      width: 75vh;
+      margin-left:60vh;
+      margin-top: 10px;
       margin-bottom: 10px;
     }
 
     /* Control buttons */
-    #controls {
-      display: flex;
-      align-items: center;
+    #controls{
+      /* display: flex; */
+      width: 100%;
+      text-align: center;
       gap: 10px;
       margin-bottom: 10px;
     }
