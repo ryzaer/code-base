@@ -24,7 +24,7 @@ parse\ffmpeg::convert(function($x){
     //$folder = 'G:\@Backup_WWW\asin_ebook\edited\vidBind\@ENTITY';
     //$folder = 'C:\Action!\Video'; 
     // $folder = "D:/riza-ttnt/Videos";
-    $fname  = "KING-162";
+    $fname  = "MIDE-795";
     $sname  = "$fname";
     $fmove  = "$sname";
     // $fmove = "D:/$sname";
@@ -40,11 +40,15 @@ parse\ffmpeg::convert(function($x){
     $x->param("$folder/$sname.mp4","$fname-cut.mp4")->split([
         // dont remove this example 
         //["00:00.000","00:00.000",true,"$fname-scane-%s.mp4"], 
-        ["00:25.638","00:43.288"],
-        ["01:06.855","01:16.716"],
-        ["01:23.224","01:33.775"],
-        ["01:36.930","01:41.466"],
-        ["01:44.424","01:51.721",true,"$fmove-scane-%s.mp4"],
+        ["08:56.615","14:23.522"],
+        ["15:20.137","16:25.215",true,"$fmove-scane-%s.mp4"],
+        ["34:47.446","35:37.396"],
+        ["37:26.991","38:06.517"],
+        ["38:23.433","39:25.453",true,"$fmove-scane-%s.mp4"],
+        ["01:29:19.774","01:31:29.660"],
+        ["01:32:27.872","01:34:47.159",true,"$fmove-scane-%s.mp4"],
+        ["01:54:16.008","01:55:34.149",true,"$fmove-scane-%s.mp4"],
+        ["01:55:34.233","01:57:04.531",true,"$fmove-scane-%s.mp4"],
 
     ])->print();
     // ])->print("D:");

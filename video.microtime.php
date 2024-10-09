@@ -89,12 +89,12 @@ $filename = "video.php?fname=$file_path";
 </video>
 
 <div id="controls">
-  <button id="playButton">&#9658;</button>
-  <button id="stopButton">&#9724;</button>
+  <button id="playButton" title="Stop (press space)">&#9658;</button>
+  <button id="stopButton" title="Stop (press s)">&#9724;</button>
   <button id="backwardButton"><</button>
   <button id="afterwardButton">></button>
-  <button id="screenshotButton" title="Capture">C</button>
-  <button id="fullscreenButton" title="Fullscreen">Z</button>
+  <button id="screenshotButton" title="Capture (press i)">C</button>
+  <button id="fullscreenButton" title="Fullscreen (press z)">Z</button>
   <button id="timeCuts" title="Time Cut (reverse time from end to early)">TC</button>
   <button id="timeGet" title="Time Get">TG</button>
   <button id="timeReset" title="Time Reset">TR</button>
@@ -351,7 +351,7 @@ function GetScreenShot() {
       event.preventDefault();
       playOrPlay()  
     }
-    if (event.keyCode === 67) {
+    if (event.keyCode === 73) {
       event.preventDefault();
       GetScreenShot()
     }
