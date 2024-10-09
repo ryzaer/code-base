@@ -40,7 +40,7 @@ parse\ffmpeg::convert(function($x){
     $x->param("$folder/$sname.mp4","$fname-cut.mp4")->split([
         // dont remove this example 
         //["00:00.000","00:00.000",true,"$fname-scane-%s.mp4"], 
-        ["15:25.255","16:30.531"],
+        ["00:54.041","16:30.531"],
         ["27:29.235","29:24.117"],
         ["30:50.305","35:47.589"],
         ["38:04.149","43:37.147",true,"$fmove-scane-%s.mp4"],

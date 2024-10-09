@@ -1,3 +1,17 @@
+<?php
+$file_path = urlencode('C:\htdocs\jin.mp4');
+if(isset($_GET['fname']) && $_GET['fname']){
+  foreach ([
+      "G:/.lua/videobind_01_jav",
+      "H:/.lua/videobind_02_jav/@shrinking_plan",
+      "I:/.lua/videobind_03_jav/@CENS/conv"
+  ] as $dir) {
+      if(file_exists("$dir/{$_GET['fname']}"))
+          $file_path = urlencode("$dir/{$_GET['fname']}");
+  }
+}
+$filename = "video.php?fname=$file_path";
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,8 +22,8 @@
     /* Style the video */
     video {
       display: block;
-      width: 75vh;
-      margin-left:60vh;
+      width: 60%;
+      margin-left:20%;
       margin-top: 10px;
       margin-bottom: 10px;
     }
@@ -69,8 +83,8 @@
 </head>
 <body>
 
-<video id="myVideo">
-  <source src="video.php" type="video/mp4">
+<video id="myVideo" data-dir="<?=$file_path?>">
+  <source src="<?=$filename?>" type="video/mp4">
   Your browser does not support the video tag.
 </video>
 
@@ -81,6 +95,12 @@
   <button id="afterwardButton">></button>
   <button id="screenshotButton" title="Capture">C</button>
   <button id="fullscreenButton" title="Fullscreen">Z</button>
+  <button id="timeCuts" title="Time Cut">TC</button>
+  <button id="timeGet" title="Time Get">TG</button>
+  <button id="timeReset" title="Time Reset">TR</button>
+</div>
+<div id="Prompts" style="width:100%;text-align:center">
+  From <input type="text"> To <input type="text">
 </div>
 <div style="width:100%;text-align:right;position:absolute">
   <div id="timeDisplay2">00:00.000 / 00:00.000</div>
@@ -89,6 +109,10 @@
 
 <div id="progressContainer">
   <div id="progressBar"></div>
+</div>
+
+<div style="width:100%;text-align:center">
+  <div id="timeRangeCut">["00:00.000","00:00.000"],</div>
 </div>
 
 <div id="popupScreenshot">
@@ -108,11 +132,33 @@
         popupScreenshot = document.getElementById('popupScreenshot'),
         popupImage = document.getElementById('popupImage'),
         timeDisplay = document.getElementById('timeDisplay'),
-        timeDisplay2 = document.getElementById('timeDisplay2');
+        timeDisplay2 = document.getElementById('timeDisplay2'),
+        timeReset = document.getElementById('timeReset'),
+        timeCuts = document.getElementById('timeCuts'),
+        timeGet = document.getElementById('timeGet'),
+        val1 = document.getElementById("Prompts").getElementsByTagName('input')[0],
+        val2 = document.getElementById("Prompts").getElementsByTagName('input')[1];
 
   let videoWasPlaying = false,
       hoverTimeout;
-
+  // ADD Time Cuts here 
+  timeCuts.addEventListener('click', () => {          
+    const splitTime = timeDisplay2.innerText.split('/');
+    if(!val1.value){
+      val1.value = splitTime[0].trim()
+    }else{
+      if(!val2.value)
+        val2.value = splitTime[0].trim()
+    }
+  });
+  timeReset.addEventListener('click', () => {
+    val1.value="",val2.value=""
+  });
+  timeGet.addEventListener('click', () => {
+    if(val1.value && val2.value){
+      document.getElementById('timeRangeCut').innerText = `["${val1.value}","${val2.value}"],`
+    }
+  });
   // Update progress bar as video plays
   video.addEventListener('timeupdate', () => {
     const percent = (video.currentTime / video.duration) * 100;
