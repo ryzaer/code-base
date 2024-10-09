@@ -95,7 +95,7 @@ $filename = "video.php?fname=$file_path";
   <button id="afterwardButton">></button>
   <button id="screenshotButton" title="Capture">C</button>
   <button id="fullscreenButton" title="Fullscreen">Z</button>
-  <button id="timeCuts" title="Time Cut">TC</button>
+  <button id="timeCuts" title="Time Cut (reverse time from end to early)">TC</button>
   <button id="timeGet" title="Time Get">TG</button>
   <button id="timeReset" title="Time Reset">TR</button>
 </div>
@@ -111,8 +111,8 @@ $filename = "video.php?fname=$file_path";
   <div id="progressBar"></div>
 </div>
 
-<div style="width:100%;text-align:center">
-  <div id="timeRangeCut">["00:00.000","00:00.000"],</div>
+<div style="width:100%;text-align:left;padding-left:35%; padding-bottom:20px">
+  <code id="timeRangeCut"></code>
 </div>
 
 <div id="popupScreenshot">
@@ -136,6 +136,7 @@ $filename = "video.php?fname=$file_path";
         timeReset = document.getElementById('timeReset'),
         timeCuts = document.getElementById('timeCuts'),
         timeGet = document.getElementById('timeGet'),
+        timeRange = document.getElementById('timeRangeCut'),
         val1 = document.getElementById("Prompts").getElementsByTagName('input')[0],
         val2 = document.getElementById("Prompts").getElementsByTagName('input')[1];
 
@@ -144,19 +145,30 @@ $filename = "video.php?fname=$file_path";
   // ADD Time Cuts here 
   timeCuts.addEventListener('click', () => {          
     const splitTime = timeDisplay2.innerText.split('/');
-    if(!val1.value){
-      val1.value = splitTime[0].trim()
+    if(!val2.value){
+      val2.value = splitTime[0].trim()
     }else{
-      if(!val2.value)
-        val2.value = splitTime[0].trim()
+      if(!val1.value)
+        val1.value = splitTime[0].trim()
     }
   });
-  timeReset.addEventListener('click', () => {
-    val1.value="",val2.value=""
+  timeReset.addEventListener('click', () => {   
+    if(val1.value || val2.value){
+       val1.value="",val2.value=""
+    }else{
+      if(timeRange.innerText)
+        if (confirm('Are you sure you want to reset this array time cuts?'))
+          // reset!
+          timeRange.innerText = ""
+    }
   });
   timeGet.addEventListener('click', () => {
     if(val1.value && val2.value){
-      document.getElementById('timeRangeCut').innerText = `["${val1.value}","${val2.value}"],`
+      var existRange= timeRange.innerText ? "\n"+timeRange.innerText : "",
+          addScenes = !existRange ? ',true,"$fmove-scane-%s.mp4"' : '';
+            
+      timeRange.innerText = `["${val1.value}","${val2.value}"${addScenes}],${existRange}`,
+      val1.value="",val2.value=""
     }
   });
   // Update progress bar as video plays

@@ -18,13 +18,13 @@ $num = 1127/30;
 // for hls parse\ffmpeg::convert("file_video.mp4")->hls()->export("folder/filename");
 //
 parse\ffmpeg::convert(function($x){
-    $folder = 'G:\.lua\videobind_02_jav\@shrinking_plan';
-    $folder = 'I:\Videos\@Movies\ASIA\JAPAN\.18JP\comp-totte';
+    $folder = 'H:\.lua\videobind_02_jav\@shrinking_plan';
+    // $folder = 'I:\Videos\@Movies\ASIA\JAPAN\.18JP\comp-totte';
     //$folder = 'G:\@Backup_WWW\asin_ebook\edited\videobind_03_jav\uncomprez';
     //$folder = 'G:\@Backup_WWW\asin_ebook\edited\vidBind\@ENTITY';
     //$folder = 'C:\Action!\Video'; 
     // $folder = "D:/riza-ttnt/Videos";
-    $fname  = "TOTTE-077";
+    $fname  = "KING-162";
     $sname  = "$fname";
     $fmove  = "$sname";
     // $fmove = "D:/$sname";
@@ -40,10 +40,11 @@ parse\ffmpeg::convert(function($x){
     $x->param("$folder/$sname.mp4","$fname-cut.mp4")->split([
         // dont remove this example 
         //["00:00.000","00:00.000",true,"$fname-scane-%s.mp4"], 
-        ["00:54.041","16:30.531"],
-        ["27:29.235","29:24.117"],
-        ["30:50.305","35:47.589"],
-        ["38:04.149","43:37.147",true,"$fmove-scane-%s.mp4"],
+        ["00:25.638","00:43.288"],
+        ["01:06.855","01:16.716"],
+        ["01:23.224","01:33.775"],
+        ["01:36.930","01:41.466"],
+        ["01:44.424","01:51.721",true,"$fmove-scane-%s.mp4"],
 
     ])->print();
     // ])->print("D:");
