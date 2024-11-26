@@ -6,7 +6,7 @@ $dbhost ='localhost';
 $dbuser ='root';
 $dbpass ='123';
 $dbdsn  = "mysql:host={$dbhost}";
-$dbtb   = 'ods_db.ploting_tps_omb_oke';
+$dbtb   = 'ods_db.tb_omp_pam_tps';
 
 try {
     $pdo = new PDO($dbdsn, $dbuser, $dbpass);
@@ -26,13 +26,15 @@ $personel=[];
 /** 
  * INSERT TB TPS PERSONEL
  */
-$sql  = "insert into db_ops.tps_personel (id,nama,pangkat,nrp,jabatan,hp,tps,akses) values (:id,:nama,:pangkat,:nrp,:jabatan,:hp,:tps,:akses) ";
-$insert = $pdo->prepare($sql);
+ $sql  = "insert into db_ops.tps_personel (id,nama,pangkat,nrp,jabatan,hp,tps,akses) values (:id,:nama,:pangkat,:nrp,:jabatan,:hp,:tps,:akses) ";
+ $insert = $pdo->prepare($sql);
 
-foreach($show as $key => $val){
-    if($key > 0){
-        $tps=[];
-        foreach(explode(',',$val['D']) as $sr){
+foreach($show as $key => $val){    
+    $tps=[];
+    $tps_id = null;
+    // PARSE TPS
+    if($val['H']){
+        foreach(explode(',',$val['H']) as $sr){
             $rng = explode('-',$sr);
             if(count($rng) == 2){
                 foreach(range(abs(trim($rng[0])),abs(trim($rng[1]))) as $rg ){
@@ -42,8 +44,6 @@ foreach($show as $key => $val){
                 $tps[] = abs(trim($sr));
             }
         }
-
-        // PARSE TPS
         $tps = (string) implode(',',$tps);
         $chk = $pdo->prepare("select id from db_ops.tps_data where area='{$val['B']}' and nomor in ($tps)");
         $chk->execute();
@@ -52,35 +52,32 @@ foreach($show as $key => $val){
             $tps_id[] = $key['id'];
         }
         $tps_id = (string) implode(',',$tps_id);
-        // var_dump($tps_id);die();
-
-        $pers = explode(';',preg_replace('/;+/',';',$val['C']));
-
-
-        // PARSE PANGKAT
-        $pgkt_str = preg_replace('/[^A-Z]/','',$pers[0]);
-        $chk = $pdo->prepare("select gid from db_groups.polri_options where groups='opt_pangkat' and item='$pgkt_str' limit 1");
-        $chk->execute();
-        $pgkt_id = $chk->fetchAll(PDO::FETCH_ASSOC);
-
-        $scheme = [
-            ':id' => abs($val['A']),
-            ':nama' => trim($pers[1]),
-            ':pangkat' => isset($pgkt_id[0]['gid']) ? $pgkt_id[0]['gid'] : '', 
-            ':nrp' => preg_replace('/[^0-9]/','',$pers[0]), 
-            ':jabatan' => trim($pers[2]),
-            ':hp' => preg_replace('/[^0-9]/','',$pers[3]),
-            ':tps' => $tps_id,
-            ':akses' => 2
-        ];
-        
-        $insert->execute($scheme);
-
-        $personel[] = $scheme;
-        
-        
     }
+
+    // PARSE PANGKAT
+    $pgkt_str = preg_replace('/[^A-Z]/','',$val['E']);
+    $chk = $pdo->prepare("select gid from db_groups.polri_options where groups='opt_pangkat' and item='$pgkt_str' limit 1");
+    $chk->execute();
+    $pgkt_id = $chk->fetchAll(PDO::FETCH_ASSOC);
+
+    // INPUT PARAMS
+    $scheme = [
+        ':id' => abs($val['A']),
+        ':nama' => trim($val['D']),
+        ':pangkat' => isset($pgkt_id[0]['gid']) ? $pgkt_id[0]['gid'] : '', 
+        ':nrp' => preg_replace('/[^0-9]/','',$val['E']), 
+        ':jabatan' => trim($val['F']),
+        ':hp' => preg_replace('/[^0-9]/','',$val['G']),
+        ':tps' => $tps_id ? $tps_id : '',
+        ':akses' => $tps_id ? 2 : 1
+    ];
+    
+    // // INSERT ALL DATA
+    // $insert->execute($scheme);
+
+    $personel[] = $scheme;
 }
+
 header("Content-Type:text/json");
 print json_encode($personel,JSON_PRETTY_PRINT);
 
