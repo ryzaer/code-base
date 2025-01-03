@@ -1,1 +1,1 @@
-<?php echo 'Who am i ? <i>'.\__fn::sysinfo().'</i>';
+<?php include_once "autobase.php"; print 'Who am i ? <i>'.\__fn::sysinfo().'</i>';

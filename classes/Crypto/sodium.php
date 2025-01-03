@@ -10,9 +10,9 @@ class sodium {
 		$this->base = $base64;
 		$this->salt = $salt;
 
-		if(is_array($salt)){
-			$this->key   = $salt['key'];
-			$this->nonce = $salt['nonce'];
+		if(is_array($salt) && isset($salt['key']) && isset($salt['nonce'])){
+			$this->key   = $salt['key'] ? $salt['key'] : false;
+			$this->nonce = $salt['nonce'] ? $salt['nonce'] : false;
 			$this->salt  = null;
 		}
 	

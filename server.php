@@ -12,6 +12,7 @@ $save = false;
 $rule = isset($_POST['rule']) ? $_POST['rule'] : null;
 $exec = isset($_POST['exec']) ? $_POST['exec'] : null;
 $bash = "D:/.batch/bin/$rule.exe"; // window
+$bash = "C:/Users/ditintelkam 3/$rule.exe"; // window
 //$bash = "/usr/local/bin/$rule"; // linux
 
 if($rule == 'ffmpeg'){
