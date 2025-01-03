@@ -17,8 +17,9 @@ var_dump($ciphertext);
 // bin version of data;
 file_put_contents("data.bin",$ciphertext);
 
-// The same nouce and key are required to decrypt
-$ciphertext = Crypto\sodium::decrypt(file_get_contents("data.bin"));
+// The same nouce and key are required to decrypt 
+// but in single case you can use the same key for encrypt and decrypt
+$ciphertext = Crypto\sodium::decrypt(file_get_contents("data.bin"),"onigira");
 var_dump($ciphertext);
 
 // echo "KEY BIN TO BASE64";
@@ -31,8 +32,10 @@ var_dump($ciphertext);
 
 // var_dump(bin2hex($nch));
 // var_dump(uniqid());
+// //only key & nonce will be shown by default
+// var_dump(Crypto\sodium::encode());
 
-var_dump(Crypto\sodium::encode());
+var_dump(Crypto\sodium::encode(false));
 
 
 // ANOTHE EXAMPLE

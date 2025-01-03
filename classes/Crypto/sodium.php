@@ -3,12 +3,13 @@ namespace Crypto;
 
 class sodium {
 	private static $stmt;
-	private $nonce,$key,$base,$uniq,$encrypt,$decrypt;
+	private $nonce,$key,$base,$uniq,$salt,$encrypt,$decrypt;
 	function __construct($salt=null,$base64=false){
-		$salt = $salt ? $salt : uniqid();
+		
+		$salt = $salt ? $salt : uniqid();	
 		$this->base = $base64;
 		$this->salt = $salt;
-	
+
 		if(is_array($salt)){
 			$this->key   = $salt['key'];
 			$this->nonce = $salt['nonce'];
@@ -33,36 +34,36 @@ class sodium {
 		}
 	}
 	static function encrypt($data,$salt=null,$base64=false) {
-		if(!self::$stmt){
-			self::$stmt = new self($salt=null,$base64=false);
-		}
-		if(!self::$stmt->nonce && !self::$stmt->key){
-			return false;
-		}
+		if(!self::$stmt)
+			self::$stmt = new self($salt,$base64);
+				
 		$enc = sodium_crypto_secretbox($data,self::$stmt->nonce,self::$stmt->key);
 		self::$stmt->encrypt = self::$stmt->base ? base64_encode($enc) : $enc;
 		return self::$stmt->encrypt;	}
 	static function decrypt($data,$salt=null,$base64=false) {
-		if(!self::$stmt){
-			self::$stmt = new self($salt=null,$base64=false);
-		}
-		if(!self::$stmt->nonce && !self::$stmt->key){
-			return false;
-		}
+		if(!self::$stmt)
+			self::$stmt = new self($salt,$base64);
+				
 		$data = self::$stmt->base ? base64_decode($data) : $data;
 		self::$stmt->decrypt = sodium_crypto_secretbox_open($data,self::$stmt->nonce,self::$stmt->key);
 		return self::$stmt->decrypt;
 	}
-	static function encode($get=null){
+	static function encode($get=true){
 		$output = [];
 		if(self::$stmt){
-			$output = [
-				'uid' => self::$stmt->uniq,
-				'key' => self::$stmt->key,
-				'salt' => self::$stmt->salt,
-				'nonce' => self::$stmt->nonce
-			];
+			if(!$get)
+				$output['uid'] = self::$stmt->uniq;
+			$output['key'] = self::$stmt->key;
+			if(!$get)
+				$output['salt'] = self::$stmt->salt;
+			$output['nonce'] = self::$stmt->nonce;
 		}
 		return isset($output[$get]) ? $output[$get] : $output;
 	}
+	static function close($get=true){
+		if(self::$stmt)
+			self::$stmt = null;
+		return null;
+	}
+
 }
