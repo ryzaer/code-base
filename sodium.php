@@ -13,16 +13,14 @@ require_once 'autobase.php';
 
 $plaintext = '{"biodata":"20230703123216","nik":"6171044409040007","nama":"RESTI RAHMADEVI","alias":"Resti","gelar":"[\"\",\"\"]","nama_ayah":"JULIDESMAN","tpt_lahir":"Pontianak","tgl_lahir":"2004-09-04","gender":"2","agama":"1","kerjaan":"4","alamat":"{\"ktp\":[\"Jl. Khatulistiwa Gg.Purnajaya II No.168-A\",\"2\",\"4\",\"61\",\"6171\",\"6171040002\"],\"skrg\":[\"Jl. Khatulistiwa Gg. Purnajaya II No.168-A\",\"2\",\"4\",\"61\",\"6171\",\"6171040002\"]}","pendidikan":"{\"terakhir\":\"5\",\"riwayat\":\"[[\\\"3\\\",\\\"Sd N 06 Pontianak Utara\\\",\\\"2016\\\"],[\\\"4\\\",\\\"Smp N 15 Pontianak Utara\\\",\\\"2019\\\"],[\\\"5\\\",\\\"Sma N 5 Pontianak Utara\\\",\\\"2022\\\"]]\"}","telp":"0895370009657","sinyal":"[\"150\",\"40\",\"1\",\"2\",\"1\",\"1\",\"1\",\"1\",\"2\",\"3\",\"1\",\"1\",\"5\",\"1\",\"1\",\"1\",\"-\",\"-\"]","data_ortu":"{\"ayah\":[\"JULIDESMAN\",\"3\",\"Jl. Khatulistiwa Gg.Purnajaya II No.168-A\"],\"ibu\":[\"RUSMAYA\",\"9\",\"Jl. Khatulistiwa Gg.Purnajaya II No. 168-A\"]}","imigrasi":"{\"passport\":\"-\"}","data_sdr":"[[\"GABRIELLA YUNITA\",\"23\",\"2\",\"Jl. Khatulistiwa Gg.Purnajaya II No. 168-A\"],[\"SANDRA RAHMAYANTI\",\"20\",\"2\",\"Jl. Khatulistiwa Gg.Purnajaya II No. 168-A\"],[\"AZZIRA YUNITA\",\"11\",\"2\",\"Jl. Khatulistiwa Gg.Purnajaya II No. 168-A\"]]"}';
 $ciphertext = Crypto\sodium::encrypt($plaintext);
+var_dump($ciphertext);
 // bin version of data;
 file_put_contents("data.bin",$ciphertext);
 
 // The same nouce and key are required to decrypt
 $ciphertext = Crypto\sodium::decrypt(file_get_contents("data.bin"));
-// var_dump($ciphertext);
-
-$ciphertext = Crypto\sodium::encrypt($plaintext,true); // true output will array
-
 var_dump($ciphertext);
+
 // echo "KEY BIN TO BASE64";
 // var_dump(base64_encode($ciphertext[0]));
 // var_dump(base64_decode(base64_encode($ciphertext[0])));
@@ -34,8 +32,7 @@ var_dump($ciphertext);
 // var_dump(bin2hex($nch));
 // var_dump(uniqid());
 
-$ciphertext = Crypto\sodium::decrypt($ciphertext);
-var_dump($ciphertext);
+var_dump(Crypto\sodium::encode());
 
 
 // ANOTHE EXAMPLE

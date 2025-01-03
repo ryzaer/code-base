@@ -2,14 +2,17 @@
 namespace Crypto;
 
 class sodium {
-	private $nonce,$key,$base,$uniq;
-	function __construct($salt=false,$base64=false){
-		$salt = $salt?$salt:uniqid();
-		$this->base  = $base64;
+	private static $stmt;
+	private $nonce,$key,$base,$uniq,$encrypt,$decrypt;
+	function __construct($salt=null,$base64=false){
+		$salt = $salt ? $salt : uniqid();
+		$this->base = $base64;
+		$this->salt = $salt;
 	
 		if(is_array($salt)){
 			$this->key   = $salt['key'];
 			$this->nonce = $salt['nonce'];
+			$this->salt  = null;
 		}
 	
 		if(is_numeric($salt) || is_string($salt)){
@@ -29,28 +32,37 @@ class sodium {
 
 		}
 	}
-	function encrypt($data) {
-		if(!$this->nonce && !$this->key){
+	static function encrypt($data,$salt=null,$base64=false) {
+		if(!self::$stmt){
+			self::$stmt = new self($salt=null,$base64=false);
+		}
+		if(!self::$stmt->nonce && !self::$stmt->key){
 			return false;
 		}
-		$enc = sodium_crypto_secretbox($data,$this->nonce,$this->key);
-		return $this->base ? base64_encode($enc) : $enc;
-	}
-	function decrypt($data) {
-		if(!$this->nonce && !$this->key){
+		$enc = sodium_crypto_secretbox($data,self::$stmt->nonce,self::$stmt->key);
+		self::$stmt->encrypt = self::$stmt->base ? base64_encode($enc) : $enc;
+		return self::$stmt->encrypt;	}
+	static function decrypt($data,$salt=null,$base64=false) {
+		if(!self::$stmt){
+			self::$stmt = new self($salt=null,$base64=false);
+		}
+		if(!self::$stmt->nonce && !self::$stmt->key){
 			return false;
 		}
-		$data = $this->base ? base64_decode($data) : $data;
-		return sodium_crypto_secretbox_open($data,$this->nonce,$this->key);
+		$data = self::$stmt->base ? base64_decode($data) : $data;
+		self::$stmt->decrypt = sodium_crypto_secretbox_open($data,self::$stmt->nonce,self::$stmt->key);
+		return self::$stmt->decrypt;
 	}
-	function encode(){
-		if(!$this->nonce && !$this->key){
-			return [];
+	static function encode($get=null){
+		$output = [];
+		if(self::$stmt){
+			$output = [
+				'uid' => self::$stmt->uniq,
+				'key' => self::$stmt->key,
+				'salt' => self::$stmt->salt,
+				'nonce' => self::$stmt->nonce
+			];
 		}
-		return [
-			'uid' => $this->uniq,
-			'key' => $this->key,
-			'nonce' => $this->nonce
-		];
+		return isset($output[$get]) ? $output[$get] : $output;
 	}
 }
