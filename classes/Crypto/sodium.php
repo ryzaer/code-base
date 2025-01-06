@@ -3,7 +3,7 @@ namespace Crypto;
 
 class sodium {
 	private static $stmt;
-	private $nonce,$key,$base,$uniq,$salt,$encrypt,$decrypt;
+	private $nonce,$key,$base,$uniq,$salt;
 	function __construct($salt=null,$base64=false,$algo=null) {
 		
 		$salt = $salt ? $salt : uniqid();	
@@ -38,16 +38,14 @@ class sodium {
 			self::$stmt = new self($salt,$base64);
 				
 		$enc = sodium_crypto_secretbox($data,self::$stmt->nonce,self::$stmt->key);
-		self::$stmt->encrypt = self::$stmt->base ? base64_encode($enc) : $enc;
-		return self::$stmt->encrypt;	
+		return self::$stmt->base ? base64_encode($enc) : $enc;	
 	}
 	static function decrypt($data,$salt=null,$base64=false) {
 		if(!self::$stmt)
 			self::$stmt = new self($salt,$base64);
 				
 		$data = self::$stmt->base ? base64_decode($data) : $data;
-		self::$stmt->decrypt = sodium_crypto_secretbox_open($data,self::$stmt->nonce,self::$stmt->key);
-		return self::$stmt->decrypt;
+		return sodium_crypto_secretbox_open($data,self::$stmt->nonce,self::$stmt->key);
 	}
 	static function encode($get=true){
 		$output = [];

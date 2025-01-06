@@ -13,7 +13,7 @@ $sql_prms = implode(";",[
     "#@6%%^-HG^",
     "dbinvoice"
 ]);
-$blob_jpg = 'data:image/jpeg;'.base64_encode(file_get_contents("assets/example/files/arini.jpg"));
+$blob_jpg = 'data:image/jpeg;'.base64_encode(file_get_contents("assets/images/arini.jpg"));
 $add_data = <<<ENV
 APP_ENV=dev
 OWNER_IMG=$blob_jpg
