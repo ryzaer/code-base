@@ -3,14 +3,15 @@ namespace Crypto;
 
 class sodium {
 	private static $stmt;
-	private $nonce,$key,$base,$algo,$uniq,$salt,$encrypt,$decrypt;
-	function __construct($salt=null,$base64=false,$algo=null) {
+	private $nonce,$key,$base,$uniq,$salt,$encrypt,$decrypt;
+	// use print_r(hash_algos())
+	// https://www.php.net/manual/en/function.hash-algos.php
+	// default algo haval195,5
+	function __construct($salt=null,$base64=false,$algo='haval192,5') {
 		
 		$salt = $salt ? $salt : uniqid();	
 		$this->base = $base64;
 		$this->salt = $salt;
-		// default algo haval195,5
-		$this->algo = $algo ? $algo : 'haval192,5';
 
 		if(is_array($salt) && isset($salt['key']) && isset($salt['nonce'])){
 			$this->key   = $salt['key'] ? $salt['key'] : false;
@@ -19,8 +20,8 @@ class sodium {
 		}
 	
 		if(is_numeric($salt) || is_string($salt)){
-			// hashing algo to generate data
-			$hash = base64_encode(hash($this->algo,$salt));
+			// hashing algo to generate data			
+			$hash = base64_encode(hash($algo,$salt));
 			$this->key   = substr($hash,0,32);
 			$this->nonce = substr($hash,32,24);
 			$uid  = [
