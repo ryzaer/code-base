@@ -4,7 +4,7 @@ namespace Crypto;
 class sodium {
 	private static $stmt;
 	private $nonce,$key,$base,$uniq,$salt;
-	function __construct($salt=null,$base64=false,$algo=null) {
+	function __construct($salt=null,$base64=false) {
 		
 		$salt = $salt ? $salt : uniqid();	
 		$this->base = $base64;
