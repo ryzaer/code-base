@@ -3,12 +3,13 @@ namespace Crypto;
 
 class sodium {
 	private static $stmt;
-	private $nonce,$key,$base,$uniq,$salt,$encrypt,$decrypt;
-	function __construct($salt=null,$base64=false){
+	private $nonce,$key,$base,$algo,$uniq,$salt,$encrypt,$decrypt;
+	function __construct($salt=null,$base64=false,$algo=null) {
 		
 		$salt = $salt ? $salt : uniqid();	
 		$this->base = $base64;
 		$this->salt = $salt;
+		$this->algo = $algo ? $algo : 'haval192,5';
 
 		if(is_array($salt) && isset($salt['key']) && isset($salt['nonce'])){
 			$this->key   = $salt['key'] ? $salt['key'] : false;
@@ -18,13 +19,13 @@ class sodium {
 	
 		if(is_numeric($salt) || is_string($salt)){
 			// hashing algo haval195,5 byte data
-			$hash = base64_encode(hash('haval192,5',$salt));  
-			$uid  = [
-				str_split(hash('adler32',substr($hash,56)),2),
-				str_split(hash('crc32b',substr($hash,56)),2)
-			];      
+			$hash = base64_encode(hash($this->algo,$salt));
 			$this->key   = substr($hash,0,32);
-			$this->nonce = substr($hash,32,24);			
+			$this->nonce = substr($hash,32,24);
+			$uid  = [
+				str_split(hash('adler32',$this->key),2),
+				str_split(hash('crc32b',$this->nonce),2)
+			];			
 			$this->uniq  = [
 				'crc4' => "{$uid[1][3]}{$uid[0][0]}",
 				'crc6' => "{$uid[1][2]}{$uid[0][1]}{$uid[0][2]}",
@@ -39,7 +40,8 @@ class sodium {
 				
 		$enc = sodium_crypto_secretbox($data,self::$stmt->nonce,self::$stmt->key);
 		self::$stmt->encrypt = self::$stmt->base ? base64_encode($enc) : $enc;
-		return self::$stmt->encrypt;	}
+		return self::$stmt->encrypt;	
+	}
 	static function decrypt($data,$salt=null,$base64=false) {
 		if(!self::$stmt)
 			self::$stmt = new self($salt,$base64);
@@ -51,11 +53,11 @@ class sodium {
 	static function encode($get=true){
 		$output = [];
 		if(self::$stmt){
-			if(!$get)
-				$output['uid'] = self::$stmt->uniq;
-			$output['key'] = self::$stmt->key;
-			if(!$get)
+			if(is_bool($get) && $get === false){
 				$output['salt'] = self::$stmt->salt;
+				$output['uid'] = self::$stmt->uniq;
+			}
+			$output['key'] = self::$stmt->key;
 			$output['nonce'] = self::$stmt->nonce;
 		}
 		return isset($output[$get]) ? $output[$get] : $output;
