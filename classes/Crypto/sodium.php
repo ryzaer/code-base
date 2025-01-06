@@ -9,6 +9,7 @@ class sodium {
 		$salt = $salt ? $salt : uniqid();	
 		$this->base = $base64;
 		$this->salt = $salt;
+		// default algo haval195,5
 		$this->algo = $algo ? $algo : 'haval192,5';
 
 		if(is_array($salt) && isset($salt['key']) && isset($salt['nonce'])){
@@ -18,7 +19,7 @@ class sodium {
 		}
 	
 		if(is_numeric($salt) || is_string($salt)){
-			// hashing algo haval195,5 byte data
+			// hashing algo to generate data
 			$hash = base64_encode(hash($this->algo,$salt));
 			$this->key   = substr($hash,0,32);
 			$this->nonce = substr($hash,32,24);
@@ -34,17 +35,17 @@ class sodium {
 
 		}
 	}
-	static function encrypt($data,$salt=null,$base64=false) {
+	static function encrypt($data,$salt=null,$base64=false,$algo=null) {
 		if(!self::$stmt)
-			self::$stmt = new self($salt,$base64);
+			self::$stmt = new self($salt,$base64,$algo);
 				
 		$enc = sodium_crypto_secretbox($data,self::$stmt->nonce,self::$stmt->key);
 		self::$stmt->encrypt = self::$stmt->base ? base64_encode($enc) : $enc;
 		return self::$stmt->encrypt;	
 	}
-	static function decrypt($data,$salt=null,$base64=false) {
+	static function decrypt($data,$salt=null,$base64=false,$algo=null) {
 		if(!self::$stmt)
-			self::$stmt = new self($salt,$base64);
+			self::$stmt = new self($salt,$base64,$algo);
 				
 		$data = self::$stmt->base ? base64_decode($data) : $data;
 		self::$stmt->decrypt = sodium_crypto_secretbox_open($data,self::$stmt->nonce,self::$stmt->key);
