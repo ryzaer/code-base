@@ -5,7 +5,8 @@ if(isset($_GET['open']) && $_GET['open']){
     // example link "code-base/sodium.php?open=677b7b1eb0afa.bin"
     $image = file_get_contents("assets/sodium/{$_GET['open']}");
     $enkey = preg_replace("/\.(jpg|bin)/","",$_GET['open']);
-    // header('Content-Disposition: form-data; name="fieldName"; filename="filename.jpg"');
+    
+    header("Content-Disposition: inline; name=\"$enkey\"; filename=\"$enkey.jpg\"");
     $deimg = Crypto\sodium::decrypt($image,$enkey);
     if(!$deimg){
         $deimg = "<i><b style=\"color:red\">Wrong data crypted image!</b></i>";
