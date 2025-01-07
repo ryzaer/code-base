@@ -21,7 +21,100 @@ if(isset($_GET['open']) && $_GET['open']){
     die($deimg);
 }
 
-$plaintext = '{"biodata":"20230703123216","nik":"6171044409040007","nama":"RESTI RAHMADEVI","alias":"Resti","gelar":"[\"\",\"\"]","nama_ayah":"JULIDESMAN","tpt_lahir":"Pontianak","tgl_lahir":"2004-09-04","gender":"2","agama":"1","kerjaan":"4","alamat":"{\"ktp\":[\"Jl. Khatulistiwa Gg.Purnajaya II No.168-A\",\"2\",\"4\",\"61\",\"6171\",\"6171040002\"],\"skrg\":[\"Jl. Khatulistiwa Gg. Purnajaya II No.168-A\",\"2\",\"4\",\"61\",\"6171\",\"6171040002\"]}","pendidikan":"{\"terakhir\":\"5\",\"riwayat\":\"[[\\\"3\\\",\\\"Sd N 06 Pontianak Utara\\\",\\\"2016\\\"],[\\\"4\\\",\\\"Smp N 15 Pontianak Utara\\\",\\\"2019\\\"],[\\\"5\\\",\\\"Sma N 5 Pontianak Utara\\\",\\\"2022\\\"]]\"}","telp":"0895370009657","sinyal":"[\"150\",\"40\",\"1\",\"2\",\"1\",\"1\",\"1\",\"1\",\"2\",\"3\",\"1\",\"1\",\"5\",\"1\",\"1\",\"1\",\"-\",\"-\"]","data_ortu":"{\"ayah\":[\"JULIDESMAN\",\"3\",\"Jl. Khatulistiwa Gg.Purnajaya II No.168-A\"],\"ibu\":[\"RUSMAYA\",\"9\",\"Jl. Khatulistiwa Gg.Purnajaya II No. 168-A\"]}","imigrasi":"{\"passport\":\"-\"}","data_sdr":"[[\"GABRIELLA YUNITA\",\"23\",\"2\",\"Jl. Khatulistiwa Gg.Purnajaya II No. 168-A\"],[\"SANDRA RAHMAYANTI\",\"20\",\"2\",\"Jl. Khatulistiwa Gg.Purnajaya II No. 168-A\"],[\"AZZIRA YUNITA\",\"11\",\"2\",\"Jl. Khatulistiwa Gg.Purnajaya II No. 168-A\"]]"}';
+
+$plaintext = <<<JSON
+{"web-app": {
+ "servlet": [   
+   {
+     "servlet-name": "cofaxCDS",
+     "servlet-class": "org.cofax.cds.CDSServlet",
+     "init-param": {
+       "configGlossary:installationAt": "Philadelphia, PA",
+       "configGlossary:adminEmail": "ksm@pobox.com",
+       "configGlossary:poweredBy": "Cofax",
+       "configGlossary:poweredByIcon": "/images/cofax.gif",
+       "configGlossary:staticPath": "/content/static",
+       "templateProcessorClass": "org.cofax.WysiwygTemplate",
+       "templateLoaderClass": "org.cofax.FilesTemplateLoader",
+       "templatePath": "templates",
+       "templateOverridePath": "",
+       "defaultListTemplate": "listTemplate.htm",
+       "defaultFileTemplate": "articleTemplate.htm",
+       "useJSP": false,
+       "jspListTemplate": "listTemplate.jsp",
+       "jspFileTemplate": "articleTemplate.jsp",
+       "cachePackageTagsTrack": 200,
+       "cachePackageTagsStore": 200,
+       "cachePackageTagsRefresh": 60,
+       "cacheTemplatesTrack": 100,
+       "cacheTemplatesStore": 50,
+       "cacheTemplatesRefresh": 15,
+       "cachePagesTrack": 200,
+       "cachePagesStore": 100,
+       "cachePagesRefresh": 10,
+       "cachePagesDirtyRead": 10,
+       "searchEngineListTemplate": "forSearchEnginesList.htm",
+       "searchEngineFileTemplate": "forSearchEngines.htm",
+       "searchEngineRobotsDb": "WEB-INF/robots.db",
+       "useDataStore": true,
+       "dataStoreClass": "org.cofax.SqlDataStore",
+       "redirectionClass": "org.cofax.SqlRedirection",
+       "dataStoreName": "cofax",
+       "dataStoreDriver": "com.microsoft.jdbc.sqlserver.SQLServerDriver",
+       "dataStoreUrl": "jdbc:microsoft:sqlserver://LOCALHOST:1433;DatabaseName=goon",
+       "dataStoreUser": "sa",
+       "dataStorePassword": "dataStoreTestQuery",
+       "dataStoreTestQuery": "SET NOCOUNT ON;select test='test';",
+       "dataStoreLogFile": "/usr/local/tomcat/logs/datastore.log",
+       "dataStoreInitConns": 10,
+       "dataStoreMaxConns": 100,
+       "dataStoreConnUsageLimit": 100,
+       "dataStoreLogLevel": "debug",
+       "maxUrlLength": 500}},
+   {
+     "servlet-name": "cofaxEmail",
+     "servlet-class": "org.cofax.cds.EmailServlet",
+     "init-param": {
+     "mailHost": "mail1",
+     "mailHostOverride": "mail2"}},
+   {
+     "servlet-name": "cofaxAdmin",
+     "servlet-class": "org.cofax.cds.AdminServlet"},
+
+   {
+     "servlet-name": "fileServlet",
+     "servlet-class": "org.cofax.cds.FileServlet"},
+   {
+     "servlet-name": "cofaxTools",
+     "servlet-class": "org.cofax.cms.CofaxToolsServlet",
+     "init-param": {
+       "templatePath": "toolstemplates/",
+       "log": 1,
+       "logLocation": "/usr/local/tomcat/logs/CofaxTools.log",
+       "logMaxSize": "",
+       "dataLog": 1,
+       "dataLogLocation": "/usr/local/tomcat/logs/dataLog.log",
+       "dataLogMaxSize": "",
+       "removePageCache": "/content/admin/remove?cache=pages&id=",
+       "removeTemplateCache": "/content/admin/remove?cache=templates&id=",
+       "fileTransferFolder": "/usr/local/tomcat/webapps/content/fileTransferFolder",
+       "lookInContext": 1,
+       "adminGroupID": 4,
+       "betaServer": true}}],
+ "servlet-mapping": {
+   "cofaxCDS": "/",
+   "cofaxEmail": "/cofaxutil/aemail/*",
+   "cofaxAdmin": "/admin/*",
+   "fileServlet": "/static/*",
+   "cofaxTools": "/tools/*"},
+
+ "taglib": {
+   "taglib-uri": "cofax.tld",
+   "taglib-location": "/WEB-INF/tlds/cofax.tld"}
+   }
+}
+JSON;
+
 $folder = "assets/sodium";
 
 print implode("<br>",[
