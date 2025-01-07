@@ -4,7 +4,9 @@ print "SODIUM ENCRYPTION WORK ONLY PHP >= 7.4<br><br>";
 
 // folder binary storage
 $folder = "assets/sodium";
-is_dir($folder) || mkdir($folder,0755);
+// Additional, authenticated data
+$salt_key = "authdata";
+is_dir($folder) || mkdir($folder,0755); 
 
 // Generate a binary secret key. This value must be stored securely.
 $key = sodium_crypto_aead_xchacha20poly1305_ietf_keygen();
@@ -16,10 +18,10 @@ $nonce = \random_bytes(\SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_NPUBBYTES);
 $message = "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Similique cum, magnam sapiente nihil suscipit in repellat nam ab totam quam. Corporis, repudiandae repellendus autem ad officiis dolor cumque soluta a!";
 
 // Encrypt as bin
-$encrypted_text = sodium_crypto_aead_xchacha20poly1305_ietf_encrypt($message, '', $nonce, $key);
+$encrypted_text = sodium_crypto_aead_xchacha20poly1305_ietf_encrypt($message, $salt_key, $nonce, $key);
 
 // concat all into file
-file_put_contents("$folder/poly1305_data.bin",$key.$nonce.$encrypted_text);
+file_put_contents("$folder/poly1305_data.bin" ,$key.$nonce.$encrypted_text);
 
 // process the file
 $getcrypt = file_get_contents("$folder/poly1305_data.bin");
@@ -28,13 +30,14 @@ $getnonce = substr($getcrypt,32,24);
 $getdata  = substr($getcrypt,56);
 
 // Decrypt
-$original_message = sodium_crypto_aead_xchacha20poly1305_ietf_decrypt($getdata, '', $getnonce, $getkey);
+$original_message = sodium_crypto_aead_xchacha20poly1305_ietf_decrypt($getdata, $salt_key, $getnonce, $getkey);
 print "<br><br>".implode("<br>",[
    "=================================================================>",
    "==== RANDOM KEY SODIUM WITH POLY1305 (BIN) =======================>",
    "=================================================================>",
    "<br>Encrypted Binary : key length ".strlen($key)." , nonce length ".strlen($nonce)." <pre>$encrypted_text </pre>Original Messeage:<br>$original_message<br>"
 ]);
+die();
 
 // Encrypt
 $encrypted_text = sodium_bin2hex(sodium_crypto_aead_xchacha20poly1305_ietf_encrypt($message, '', $nonce, $key));
@@ -65,6 +68,10 @@ $bob_keypair = sodium_crypto_box_keypair();
 $bob_secret_key = sodium_crypto_box_secretkey($bob_keypair);
 $bob_public_key = sodium_crypto_box_publickey($bob_keypair);
 
+// $bob_secret_key = '40a1b64224eaf408ce99357952617bfd69fdd4a3f16a4dafbb2abeab07f3e93f';
+// $bob_secret_key = sodium_bin2hex($bob_secret_key);
+// var_dump(sodium_bin2hex($bob_secret_key));
+
 // Exchange keys:
 // - Send Alice's public key to Bob.
 // - Send Bob's public key to Alice.
@@ -81,9 +88,13 @@ $message = "Hi Bob, I'm Alice";
 
 // Encrypt and sign the message
 $encrypted_signed_text = sodium_crypto_box($message, $nonce, $sender_keypair);
+// var_dump($encrypted_signed_text);
 
 // On recipient:
 $recipient_keypair = sodium_crypto_box_keypair_from_secretkey_and_publickey($bob_secret_key, $alice_public_key);
+// $recipient_keypair = sodium_crypto_box_keypair_from_secretkey_and_publickey(sodium_hex2bin($bob_secret_key), $alice_public_key);
+// echo "\$recipient_keypair";
+var_dump($recipient_keypair);
 
 // Authenticate and decrypt message
 $orig_msg = sodium_crypto_box_open($encrypted_signed_text, $nonce, $sender_keypair);

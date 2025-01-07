@@ -31,7 +31,7 @@ var_dump($plaintext);
 // Example Default Salt Key
 $ciphertext = Crypto\sodium::encrypt($plaintext);
 // Example Using Salt Key
-$ciphertext = Crypto\sodium::encrypt($plaintext);
+// $ciphertext = Crypto\sodium::encrypt($plaintext);
 echo "<b>Encrypted Data [Binary]</b>";
 var_dump($ciphertext);
 
@@ -50,3 +50,22 @@ echo "<b>Decrypt Using Key [{$get_keys['key']}] & Nonce [{$get_keys['nonce']}]</
 var_dump(Crypto\sodium::decrypt(file_get_contents("assets/sodium/data.bin"),$get_keys));
 echo "<b>Decrypt Using Salt Key [$get_salt]</b>";
 var_dump(Crypto\sodium::decrypt(file_get_contents("assets/sodium/data.bin"),$get_salt));
+
+Crypto\sodium::close();
+
+print implode("<br>",[
+"<b>=================================================================>",
+"======== SODIUM CLASS (Singleton) EXAMPLE : POLY 1305 ===============>",
+"=================================================================></b>"
+])."<br>";
+
+var_dump($plaintext);
+// Example Default Salt Key
+$ciphertext = Crypto\sodium::poly1305_encrypt($plaintext,'test');
+echo "<b>Encrypted Data [Poly 1305 Binary]</b>";
+var_dump($ciphertext);
+echo "<b>Decrypted Data [Poly 1305 Binary]</b>";
+var_dump(Crypto\sodium::poly1305_decrypt($ciphertext,'test'));
+echo "<b>Encryption codes</b>";
+$dataCode = Crypto\sodium::encode(false);
+var_dump($dataCode);
