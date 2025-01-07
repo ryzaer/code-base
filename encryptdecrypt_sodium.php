@@ -8,49 +8,6 @@ $folder = "assets/sodium";
 $salt_key = "authdata";
 is_dir($folder) || mkdir($folder,0755); 
 
-// Generate a binary secret key. This value must be stored securely.
-$key = sodium_crypto_aead_xchacha20poly1305_ietf_keygen();
-
-// Generate a binary nonce for EACH MESSAGE. This can be public, and must be provided to decrypt the message.
-$nonce = \random_bytes(\SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_NPUBBYTES);
-
-// Text to encrypt.
-$message = "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Similique cum, magnam sapiente nihil suscipit in repellat nam ab totam quam. Corporis, repudiandae repellendus autem ad officiis dolor cumque soluta a!";
-
-// Encrypt as bin
-$encrypted_text = sodium_crypto_aead_xchacha20poly1305_ietf_encrypt($message, $salt_key, $nonce, $key);
-
-// concat all into file
-file_put_contents("$folder/poly1305_data.bin" ,$key.$nonce.$encrypted_text);
-
-// process the file
-$getcrypt = file_get_contents("$folder/poly1305_data.bin");
-$getkey   = substr($getcrypt,0,32);
-$getnonce = substr($getcrypt,32,24);
-$getdata  = substr($getcrypt,56);
-
-// Decrypt
-$original_message = sodium_crypto_aead_xchacha20poly1305_ietf_decrypt($getdata, $salt_key, $getnonce, $getkey);
-print "<br><br>".implode("<br>",[
-   "=================================================================>",
-   "==== RANDOM KEY SODIUM WITH POLY1305 (BIN) =======================>",
-   "=================================================================>",
-   "<br>Encrypted Binary : key length ".strlen($key)." , nonce length ".strlen($nonce)." <pre>$encrypted_text </pre>Original Messeage:<br>$original_message<br>"
-]);
-die();
-
-// Encrypt
-$encrypted_text = sodium_bin2hex(sodium_crypto_aead_xchacha20poly1305_ietf_encrypt($message, '', $nonce, $key));
-// Decrypt
-$original_message = sodium_crypto_aead_xchacha20poly1305_ietf_decrypt(sodium_hex2bin($encrypted_text), '', $nonce, $key);
-
-print "<br><br>".implode("<br>",[
-   "=================================================================>",
-   "==== RANDOM KEY SODIUM WITH POLY1305 (HEX) =======================>",
-   "=================================================================>",
-   "<br>Encrypted Text:<br>$encrypted_text<br>Original Messeage:<br>$original_message<br>"
-]);
-
 print "<br><br>".implode("<br>",[
 "=================================================================>",
 "==== RANDOM KEY SODIUM NONCEBYTE (2 directions/device) ==============>",

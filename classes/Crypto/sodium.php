@@ -20,16 +20,15 @@ class sodium {
 		}else{
 			$this->salt = $this->salt ? $this->salt : uniqid();
 			// hashing algo haval195,5 byte data
-			$hash = base64_encode(hash('haval192,5',$this->salt));
+			$hash = base64_encode(hash('haval192,5',$this->salt));			
 			$this->key   = substr($hash,0,32);
 			$this->nonce = substr($hash,32,24);	
-		}
-		
+		}		
 		$this->rand_uid($hash);
 	}
 	function rand_uid($hash=null) {
 		$rand = $this->salt ? $this->salt : uniqid();
-		$hash = $hash ? $hash : hash('sha256', $rand );
+		$hash = $hash ? $hash : base64_encode(hash('haval192,5',$rand));
 		$uid  = [
 			str_split(hash('adler32',substr($hash,56)),2),
 			str_split(hash('crc32b',substr($hash,56)),2)

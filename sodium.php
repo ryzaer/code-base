@@ -3,18 +3,21 @@ require_once 'autobase.php';
 
 if(isset($_GET['open']) && $_GET['open']){
     // example link "code-base/sodium.php?open=677b7b1eb0afa.bin"
-    $image = file_get_contents("assets/sodium/{$_GET['open']}");
-    $enkey = preg_replace("/\.(jpg|bin)/","",$_GET['open']);
-    
-    header("Content-Disposition: inline; name=\"$enkey\"; filename=\"$enkey.jpg\"");
-    $deimg = Crypto\sodium::decrypt($image,$enkey);
-    if(!$deimg){
-        $deimg = "<i><b style=\"color:red\">Wrong data crypted image!</b></i>";
-    }else{
-        header("Content-Type:image/jpg");
-        print $deimg;
-        $deimg = null;
-    }    
+    $deimg = "<i><b style=\"color:red\">Image not exists!</b></i>";
+    $filex = "assets/sodium/{$_GET['open']}";
+    if(file_exists($filex)){
+        $image = file_get_contents($filex);
+        $enkey = preg_replace("/\.(jpg|bin)/","",$_GET['open']);
+        $deimg = Crypto\sodium::decrypt($image,$enkey);        
+        if(!$deimg){
+            $deimg = "<i><b style=\"color:red\">Wrong data crypted image!</b></i>";
+        }else{
+            header("Content-Disposition: inline; name=\"$enkey\"; filename=\"$enkey.jpg\"");
+            header("Content-Type:image/jpg");
+            print $deimg;
+            $deimg = null;
+        }
+    }
     die($deimg);
 }
 
@@ -30,10 +33,11 @@ print implode("<br>",[
 var_dump($plaintext);
 // Example Default Salt Key
 $ciphertext = Crypto\sodium::poly1305_encrypt($plaintext);
+file_put_contents("$folder/poly1305_data.bin",$ciphertext);
 echo "<b>Encrypted Data [Poly 1305 Binary]</b>";
 var_dump($ciphertext);
 echo "<b>Decrypted Data [Poly 1305 Binary]</b>";
-var_dump(Crypto\sodium::poly1305_decrypt($ciphertext));
+var_dump(Crypto\sodium::poly1305_decrypt(file_get_contents("$folder/poly1305_data.bin")));
 echo "<b>Encryption codes</b>";
 $dataCode = Crypto\sodium::encode(false);
 var_dump($dataCode);
