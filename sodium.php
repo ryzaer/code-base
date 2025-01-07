@@ -119,27 +119,11 @@ $folder = "assets/sodium";
 
 print implode("<br>",[
 "<b style=\"font-family:monospace;font-size:18px\">=======================================================================>",
-"======== SODIUM CLASS (Singleton) EXAMPLE : poly1305 ==================>",
-"=======================================================================></b>"
-])."<br>";
-
-var_dump($plaintext);
-// Example Default Salt Key
-$ciphertext = Crypto\sodium::poly1305_encrypt($plaintext);
-file_put_contents("$folder/poly1305_data.bin",$ciphertext);
-echo "<b>Encrypted Data [Poly 1305 Binary]</b>";
-var_dump($ciphertext);
-echo "<b>Decrypted Data [Poly 1305 Binary]</b>";
-var_dump(Crypto\sodium::poly1305_decrypt(file_get_contents("$folder/poly1305_data.bin")));
-echo "<b>Encryption codes</b>";
-$dataCode = Crypto\sodium::encode(false);
-var_dump($dataCode);
-
-print implode("<br>",[
-"<b style=\"font-family:monospace;font-size:18px\">=======================================================================>",
 "======== SODIUM CLASS (Singleton) EXAMPLE : haval192,5 ================>",
-"======== In this default encrypt/decrypt must using salt key ==========>",
-"======== Or key & nonce (Salt key will auto create if not provided) ===>",
+"======== In this algo encrypt/decrypt must using salt key =============>",
+"======== Salt key will auto create if not provided ====================>",
+"======== example encrypt : Crypto\sodium::encrypt(data,saltkey); ======>",
+"======== example decrypt : Crypto\sodium::decrypt(data,saltkey); ======>",
 "=======================================================================></b>"
 ])."<br>";
 // $plaintext = file_get_contents("assets/images/arini.jpg");
@@ -169,3 +153,24 @@ var_dump(Crypto\sodium::decrypt(file_get_contents("assets/sodium/data.bin"),$get
 
 Crypto\sodium::close();
 
+
+print implode("<br>",[
+"<b style=\"font-family:monospace;font-size:18px\">=======================================================================>",
+"== SODIUM CLASS (Singleton) EXAMPLE : poly1305 ========================>",
+"== In this algo encrypt/decrypt salt key are optional =================>",
+"== example encrypt : Crypto\sodium::poly1305_encrypt(data,saltkey); ===>",
+"== example decrypt : Crypto\sodium::poly1305_decrypt(data,saltkey); ===>",
+"=======================================================================></b>"
+])."<br>";
+
+var_dump($plaintext);
+// Example Default Salt Key
+$ciphertext = Crypto\sodium::poly1305_encrypt($plaintext);
+file_put_contents("$folder/poly1305_data.bin",$ciphertext);
+echo "<b>Encrypted Data [Poly 1305 Binary]</b>";
+var_dump($ciphertext);
+echo "<b>Decrypted Data [Poly 1305 Binary]</b>";
+var_dump(Crypto\sodium::poly1305_decrypt(file_get_contents("$folder/poly1305_data.bin")));
+echo "<b>Encryption codes</b>";
+$dataCode = Crypto\sodium::encode(false);
+var_dump($dataCode);
