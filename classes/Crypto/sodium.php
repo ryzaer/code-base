@@ -5,29 +5,31 @@ class sodium {
 	private static $stmt;
 	private $nonce,$key,$base,$uniq=[],$salt;
 	function __construct($salt=null,$base=false) {		
-		$salt = $salt ? $salt : uniqid();	
 		$this->base = $base;
 		$this->salt = $salt;
 		$this->poly = false;
 	}
 
 	function create_keys() {
+		
+		$hash = null;
 		if(is_array($this->salt) && isset($this->salt['key']) && isset($this->salt['nonce'])){
 			$this->key   = $this->salt['key'] ? $this->salt['key'] : false;
 			$this->nonce = $this->salt['nonce'] ? $this->salt['nonce'] : false;
 			$this->salt  = null;
-		}
-		$hash = null;
-		if(is_numeric($this->salt) || is_string($this->salt)){
+		}else{
+			$this->salt = $this->salt ? $this->salt : uniqid();
 			// hashing algo haval195,5 byte data
 			$hash = base64_encode(hash('haval192,5',$this->salt));
 			$this->key   = substr($hash,0,32);
-			$this->nonce = substr($hash,32,24);			
+			$this->nonce = substr($hash,32,24);	
 		}
+		
 		$this->rand_uid($hash);
 	}
 	function rand_uid($hash=null) {
-		$hash = $hash ? $hash : hash('sha256',$this->salt ? $this->salt : uniqid());
+		$rand = $this->salt ? $this->salt : uniqid();
+		$hash = $hash ? $hash : hash('sha256', $rand );
 		$uid  = [
 			str_split(hash('adler32',substr($hash,56)),2),
 			str_split(hash('crc32b',substr($hash,56)),2)
@@ -63,8 +65,7 @@ class sodium {
 			self::$stmt = new self($salt_key,$base);
 			self::$stmt->rand_uid();
 		}	
-		self::$stmt->poly = true;
-		
+		self::$stmt->poly = true;		
 		// Generate a binary secret key. This value must be stored securely.
 		$key = sodium_crypto_aead_xchacha20poly1305_ietf_keygen();
 		// Generate a binary nonce for EACH MESSAGE. This can be public, and must be provided to decrypt the message.
@@ -82,7 +83,7 @@ class sodium {
 			self::$stmt->rand_uid();
 		}
 		self::$stmt->poly = true;
-
+		$salt_key = is_string($salt_key) ? $salt_key : null;
 		$data = self::$stmt->base ? base64_decode($data) : $data;
 		$getkey   = substr($data,0,32);
 		$getnonce = substr($data,32,24);
@@ -93,11 +94,12 @@ class sodium {
 		$output = [];
 		if(self::$stmt){
 			if(is_bool($get) && $get === false){
+				$output['algo'] = self::$stmt->poly ? "poly1305" : "haval192,5";
 				$output['salt'] = self::$stmt->salt;
 				$output['uid'] = self::$stmt->uniq;
 			}
-			$output['key'] =  self::$stmt->poly ? "poly1305mode" : self::$stmt->key;
-			$output['nonce'] = self::$stmt->poly ? "poly1305mode" : self::$stmt->nonce;
+			$output['key'] =  self::$stmt->poly ? null : self::$stmt->key;
+			$output['nonce'] = self::$stmt->poly ? null : self::$stmt->nonce;
 		}
 		return isset($output[$get]) ? $output[$get] : $output;
 	}
