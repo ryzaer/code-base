@@ -239,23 +239,24 @@ class Archives {
 			}
 			for( $i = 0; $i < $zip->numFiles; $i++ ){ 
 				$stat = $zip->statIndex( $i ); 
-				
+				var_dump($stat);
 				//sampai disini utk membuka file
-				// if(preg_match('/(\.jp(e?)g)/',$stat['name'])){
-				//	$file = $zip->getFromName($stat['name']);
-				// 	if($file){
-				// 		echo "<div><img style=\"width:300px\" src=\"data:image/jpeg;base64,".base64_encode($file)."\"></div>";
-				// 	}
-				// }else{
-				// 	if($file){
-				// 		echo "<p>". $file."</p>";
-				// 	}            
-				// }
 				$file = $zip->getFromName($stat['name']);
-				if($file){					
-					echo "mime_type=".$ext->buffer($file).'; filename='.$stat['name'] ."<br>";
+				if(preg_match('/\.(jp(e?)g|png)/',$stat['name'])){
+					if($file)
+						echo "<div><img style=\"width:300px\" src=\"data:".$ext->buffer($file).";base64,".base64_encode($file)."\"></div>";
+					
 				}
-				//print_r( basename( $stat['name'] ) . PHP_EOL ."<br>"); 
+
+				// else{
+				// 	if($file)
+				// 		echo "<p>". $file."</p>";
+					            
+				// }
+				if($file)					
+					echo "mime_type=".$ext->buffer($file).'; filename='.$stat['name'] ."<br>";
+					
+				// print_r( basename( $stat['name'] ) . PHP_EOL ."<br>"); 
 			}
 			$zip->close();
 			$cinfo = null;

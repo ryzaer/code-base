@@ -1,16 +1,19 @@
 <?php
 require_once "autobase.php";
 //Php >= 7.4
-$zip = new Manage\Archives();
+$zip = new \Manage\Archives();
 // example 1 output folder.zip
 //$zip->createZip('assets/example/files','assets/compressed/files.zip');
 // example 2 output riza.zip
-$zip->fname = 'female';
+$zip->fname = 'json_data';
 
-$zip->createZip("assets/example/$zip->fname",function($zip){
+$zip->folder = "assets/zipunzip";
+
+$zip->createZip("$zip->folder/$zip->fname",function($zip){
     $zip->password('12345');
-    $zip->export("assets/rahasia/{$zip->fname}.bin");
+    $zip->export("$zip->folder/safe/{$zip->fname}.zip");
     $zip->info([
+        "id"            => uniqid(),
         "code"          => "ktra-332",
         "title"         => "aksdjklj dlakjdkajd lakdjlaksdj",
         "author"        => "riza",
@@ -23,6 +26,7 @@ $zip->createZip("assets/example/$zip->fname",function($zip){
     ]);
 });
 
-$zip->password('S$gjhs')->encryptZip("assets/rahasia/$zip->fname.bin",'12345');
-$zip->openZip("assets/rahasia/$zip->fname.bin",'S$gjhs');
-//$zip->extractZip("assets/rahasia/$zip->fname.bin","assets/extracted/$zip->fname",$zip->newPwd);
+$zip->password('S$gjhs')->encryptZip("$zip->folder/safe/$zip->fname.zip",'12345');
+$zip->openZip("$zip->folder/safe/$zip->fname.zip",'S$gjhs');
+
+$zip->extractZip("$zip->folder/safe/$zip->fname.zip","$zip->folder/open/$zip->fname",'S$gjhs');
