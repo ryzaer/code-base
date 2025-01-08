@@ -4,8 +4,3 @@ define('DB_PASS','123');
 define('DB_NAME','rizaus_restaptk');
 define('DIR_COVER','D:/__project_web/__classes/autoloader/assets/images');
 define('DIR_THUMB','D:/__project_web/__classes/autoloader/assets/images/thumbnails');
-
-include_once 'autoload.php';
-$dir = 'D:/Screenshots - Copy - Copy';
-if(is_dir($dir))
-    \__fn::rm($dir);
