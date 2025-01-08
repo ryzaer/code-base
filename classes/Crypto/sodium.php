@@ -3,7 +3,7 @@ namespace Crypto;
 
 class sodium {
 	private static $stmt;
-	private $nonce,$key,$base,$uniq=[],$salt;
+	private $nonce,$key,$base,$uniq,$salt;
 	function __construct($salt=null,$base=false) {		
 		$this->base = $base;
 		$this->salt = $salt;
@@ -29,15 +29,8 @@ class sodium {
 	function rand_uid($hash=null) {
 		$rand = $this->salt ? $this->salt : uniqid();
 		$hash = $hash ? $hash : base64_encode(hash('haval192,5',$rand));
-		$uid  = [
-			str_split(hash('adler32',substr($hash,56)),2),
-			str_split(hash('crc32b',substr($hash,56)),2)
-		];			
-		$this->uniq  = [
-			"{$uid[1][3]}{$uid[0][0]}",
-			"{$uid[1][2]}{$uid[0][1]}{$uid[0][2]}",
-			"{$uid[0][3]}{$uid[1][0]}{$uid[1][3]}{$uid[0][1]}",
-		];
+		$uid  = [str_split(hash('adler32',substr($hash,56)),2),str_split(hash('crc32b',substr($hash,56)),2)];			
+		$this->uniq = "{$uid[1][3]}{$uid[0][0]}-{$uid[1][2]}{$uid[0][1]}{$uid[0][2]}-{$uid[0][3]}{$uid[1][0]}{$uid[1][3]}{$uid[0][1]}";
 	}
 	static function encrypt($data,$salt=null,$base=false) {
 		if(self::$stmt && self::$stmt->poly === true)

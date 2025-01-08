@@ -146,6 +146,7 @@ file_put_contents("$folder/data.bin",$ciphertext);
 // file_put_contents("$folder/$get_salt.bin",$ciphertext);
 
 Crypto\sodium::close();
+
 echo "<b>Decrypt Using Key [{$get_keys['key']}] & Nonce [{$get_keys['nonce']}]</b>";
 var_dump(Crypto\sodium::decrypt(file_get_contents("assets/sodium/data.bin"),$get_keys));
 echo "<b>Decrypt Using Salt Key [$get_salt]</b>";
