@@ -1,7 +1,8 @@
 <?php
 // panggil class recrusive
+$dirs = 'assets';
 $file = new \RecursiveIteratorIterator(
-new \RecursiveDirectoryIterator('assets'),
+new \RecursiveDirectoryIterator($dirs),
 \RecursiveIteratorIterator::LEAVES_ONLY
 );
 
@@ -11,5 +12,5 @@ foreach ($file as $name){
     //echo $name."<br>";
     //if($name->isFile())	
     //if($name->isDir())	
-    if(preg_match('/\.zip/',$filePath)){ echo $filePath ."<br>";}
+    if(preg_match('/\.(zip|bin)/',$filePath)){ echo $filePath ."<br>";}
 }
