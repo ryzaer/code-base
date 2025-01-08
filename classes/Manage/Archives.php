@@ -67,8 +67,7 @@ class Archives {
 					//couldn't read inside, so passworded
 					if(zip_entry_read($zip_entry))
 						$status = false;
-						zip_entry_close($zip_entry);
-				
+				zip_entry_close($zip_entry);
 			}	
 		} 
 		zip_close($zip);
@@ -243,8 +242,7 @@ class Archives {
 				//sampai disini utk membuka file
 				$file = $zip->getFromName($stat['name']);
 				if(preg_match('/\.(jp(e?)g|png)/',$stat['name'])){
-					if($file)
-						echo "<div><img style=\"width:300px\" src=\"data:".$ext->buffer($file).";base64,".base64_encode($file)."\"></div>";
+					echo "<div><img style=\"width:300px\" src=\"data:".$ext->buffer($file).";base64,".base64_encode($file)."\"></div>";
 					
 				}
 
@@ -253,11 +251,11 @@ class Archives {
 				// 		echo "<p>". $file."</p>";
 					            
 				// }
-				if($file)					
-					echo "mime_type=".$ext->buffer($file).'; filename='.$stat['name'] ."<br>";
+				echo "mime_type=".$ext->buffer($file).'; filename='.$stat['name'] ."<br>";
 					
 				// print_r( basename( $stat['name'] ) . PHP_EOL ."<br>"); 
 			}
+			
 			$zip->close();
 			$cinfo = null;
 		}
