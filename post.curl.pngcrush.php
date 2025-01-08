@@ -4,7 +4,7 @@ require_once('autobase.php');
  * example post curl pngcrush
  */
 $file = realpath('.')."/assets/example/files/pol.png";
-$link = "http://localhost/__classes/autoloader/server.php";  
+$link = "http://localhost/__repository/code-base/server.php";  
 $link = "http://api.resptk.org/server.php";  
 $meta = @getimagesize($file);
 $data = new CURLFile($file,$meta['mime']);

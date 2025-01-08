@@ -5,6 +5,18 @@
     $arrs = false;
     $code = false;
     $prms = (object)[];
+    $data = [];
+    $blob = true;
+
+    if(!function_exists("__makeCurlFile")){
+        function __makeCurlFile($file){
+            $mime = mime_content_type($file);
+            $info = pathinfo($file);
+            $name = $info['basename'];
+            $output = new CURLFile($file, $mime, $name);
+            return $output;
+        }
+    }
     
     foreach ($args as $val) {
         if(is_string($val) && $val){
@@ -29,37 +41,46 @@
              */
             $prms = $val;
         }
+        if(is_array($val)){
+            foreach($val as $var => $vals){
+                if(file_exists($vals)){
+                    $data[$var] = __makeCurlFile($vals);
+                }else{
+                    $data[$var] = $vals;
+                }
+            }
+        }
     }
     
     if($link){ 
         
         $send = curl_init($link);
-        $code = isset($prms->code) ? $prms->code : $code;
+        // $code = isset($prms->code) ? $prms->code : $code;
 
         curl_setopt($send,CURLOPT_RETURNTRANSFER,true); 
         curl_setopt($send,CURLOPT_SSL_VERIFYHOST,false);
         curl_setopt($send,CURLOPT_SSL_VERIFYPEER,false);         
         
         /* if method put available */  
-        $file = isset($prms->file) && is_string($prms->file) && $prms->file ? $prms->file : null;
-        $size = isset($prms->size) && is_numeric($prms->size) && $prms->size ? $prms->size : null;
+        // $file = isset($prms->file) && is_string($prms->file) && $prms->file ? $prms->file : null;
+        // $size = isset($prms->size) && is_numeric($prms->size) && $prms->size ? $prms->size : null;
+        // $http = isset($prms->http) && is_array($prms->http) && $prms->http ? $prms->http : [];
 
-        $http = isset($prms->http) && is_array($prms->http) && $prms->http ? $prms->http : [];
-        if(!$http){
-            curl_setopt($send,CURLOPT_HEADER,false);
-        }else{
-            curl_setopt($send,CURLOPT_HTTPHEADER,$http); 
-        }        
+        // if(!$http){
+        //     curl_setopt($send,CURLOPT_HEADER,false);
+        // }else{
+        //     curl_setopt($send,CURLOPT_HTTPHEADER,$http); 
+        // }        
 
-        if($file && $size){
-            !$http or curl_setopt($send,CURLOPT_PUT,1);
-            curl_setopt($send,CURLOPT_INFILE,$file) ;
-            curl_setopt($send,CURLOPT_INFILESIZE,$size);
-        }        
+        // if($file && $size){
+        //     !$http or curl_setopt($send,CURLOPT_PUT,1);
+        //     curl_setopt($send,CURLOPT_INFILE,$file) ;
+        //     curl_setopt($send,CURLOPT_INFILESIZE,$size);
+        // }        
 
         /* if available method post data */    
-        $data = isset($prms->data) && is_array($prms->data) && $prms->data ? $prms->data : [];
-        //!$data or curl_setopt($send,CURLOPT_POST,true);
+        // $data = isset($prms->data) && is_array($prms->data) && $prms->data ? $prms->data : [];
+        !$data or curl_setopt($send,CURLOPT_POST,true);
         !$data or curl_setopt($send,CURLOPT_POSTFIELDS,$data);        
         curl_setopt($send,CURLOPT_BINARYTRANSFER,true);        
         
