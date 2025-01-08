@@ -112,12 +112,12 @@ class Archives {
 				foreach ($files as $file) {
 					$paths = substr($file->getRealPath(), strlen(realpath($source)) + 1);
 					//  still working bcoz only necessary for directories that will REMAIN empty 
-					if ($file->isDir()) {
+					if ($file->isDir()) 
 						$zip->addEmptyDir($paths);
-					}
-					if($file->isFile()) {
+					
+					if($file->isFile()) 
 						$zip->addFromString($paths, file_get_contents($file));
-					}
+					
 					$encrypt[] = $paths;
 				}
 				
