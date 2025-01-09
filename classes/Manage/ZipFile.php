@@ -3,7 +3,7 @@ namespace Manage;
 
 // php7.2 >=
 
-class Archives {
+class ZipFile {
 
 // $z = new ZipArchive();
 // if ($z->open('files/files.zip', ZipArchive::CREATE)){
@@ -37,12 +37,13 @@ class Archives {
 
 // function moveToZip($source, $destination){
 //     chmod($source, 0755);
-//     if(createZip($source, $destination))
+//     if(create($source, $destination))
 //         unlink($source);
 // }
 	private $create = false,
 		    $saveTo = null,
-		    $addPwd = null;
+		    $addPwd = null,
+			$addFiles=[];
 
 	private function is_encrypted($zip_file = null) {
 		$status = true;
@@ -77,7 +78,7 @@ class Archives {
 		return $iszip;
 	}
 
-	public function createZip($source, $destination=null) {
+	public function create($source, $destination=null) {
 		$status = false;
 		$this->create = true;
 
@@ -95,8 +96,7 @@ class Archives {
 		// break if destination is file
 		if(is_file($this->saveTo)){
 			if(file_exists($this->saveTo))
-				unlink($this->saveTo);
-				
+				unlink($this->saveTo);				
 		}
 
 		$res = $zip->open($this->saveTo, \ZipArchive::CREATE);
@@ -132,12 +132,21 @@ class Archives {
 			}elseif (is_file($source)) {
 				$zip->addFromString($source, file_get_contents($source));
 				$encrypt[] = $source;				
-			} 			
-			
+			} 	
+
 			if($this->addPwd)
-				foreach ($encrypt as $path) {
+				foreach ($encrypt as $path) 
 					$zip->setEncryptionName($path, \ZipArchive::EM_AES_256, $this->addPwd);
+			
+			if($this->addFiles){
+				foreach ($this->addFiles as $file) {
+					$name = basename($file);
+					// var_dump($name);
+					$zip->addFromString($name, file_get_contents($file));
+					if($this->addPwd)
+						$zip->setEncryptionName($name, \ZipArchive::EM_AES_256, $this->addPwd);				
 				}
+			}
 		}
 		$this->create = false;
 		$this->saveTo = null;
@@ -149,6 +158,20 @@ class Archives {
 	public function password($addPwd){
 		if($this->create)
 			$this->addPwd = $addPwd;
+	}
+
+	public function files($addFiles){
+		if($this->create){
+			if(is_array($addFiles)){
+				foreach ($addFiles as $file) {
+					if(file_exists($file))
+						$this->addFiles[] = $file;
+				}
+			}
+			if(is_string($addFiles))
+				if(file_exists($addFiles))
+					$this->addFiles[] = $addFiles;
+		}
 	}
 
 	public function export($saveTo){
@@ -180,7 +203,7 @@ class Archives {
 		}
 	}
 
-	function protectZip($source,$newPwd=null,$lstPass=null){
+	function protect($source,$newPwd=null,$lstPass=null){
 		
 		$status = false;
 		
@@ -204,7 +227,7 @@ class Archives {
 				$status = true;
 				unlink($source);
 				$this->addPwd = $newPwd;
-				$this->createZip($tmp_dir,$source);
+				$this->create($tmp_dir,$source);
 				\__fn::rm($tmp_dir);
 			}
 		}
@@ -212,7 +235,7 @@ class Archives {
 		return $status;
 	}
 
-	function openZip($file,$pass=null,$obj_mode=false){
+	function open($file,$pass=null,$regex=false){
 		// still developing 
 		$check = false;
 		$cinfo = null;
@@ -246,13 +269,16 @@ class Archives {
 			// }else{
 			// 	echo "mime_type=".$ext->buffer($file).'; filename='.$stat['name'] ."<br>";
 			// }
-			$mime = $ext->buffer($file);
-			if(!preg_match('/empty/i', $mime))
-				$rsl[preg_replace("/\\\+/","/",$stat['name'])] = [
-					"mime_type" => $mime,
-					"base64" => base64_encode($file),
-					"size" => strlen($file)
-				];
+			if(!$regex){
+				$mime = $ext->buffer($file);
+				if(!preg_match('/empty/i', $mime))
+					$rsl[preg_replace("/\\\+/","/",$stat['name'])] = [
+						"mime_type" => $mime,
+						"base64" => base64_encode($file),
+						"size" => strlen($file)
+					];
+			}
+			
 
 			// else{
 			// 	if($file)
