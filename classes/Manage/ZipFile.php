@@ -262,7 +262,7 @@ class ZipFile {
 			if($show){
 				$name = preg_replace("/\\\+/","/",$stat['name']);
 				if(!$match){
-					$file = $zip->getFromName($stat['name']);
+					$file = $zip->getFromName($name);
 					$mime = $ext->buffer($file);
 					if(!preg_match('/empty/i', $mime))
 					$rsl[] = [
@@ -272,8 +272,19 @@ class ZipFile {
 						"size" => strlen($file)
 					];
 				}else{
-					if($match == $name)
-						$cinfo = $zip->getFromName($stat['name']);					
+					if($match == $name){					
+						$cinfo = $zip->getFromName($name);
+						// Open the file as a stream not work on 7.4 (why?)
+						// $stream = $zip->getStream($name);
+						// var_dump($stream);
+						// if ($stream) {
+						// 	// Read the file content in chunks and stream it
+						// 	while (!feof($stream)) {
+						// 		print fread($stream, 1024); // Read 1KB at a time
+						// 	}
+						// 	fclose($stream); // Close the stream
+						// }	
+					}				
 					$show = false;
 				}
 			}
