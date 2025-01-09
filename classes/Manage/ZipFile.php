@@ -235,7 +235,7 @@ class ZipFile {
 		return $status;
 	}
 
-	function open($file,$pass=null,$regex=false){
+	function open($file,$pass=null,$match=false){
 		// still developing 
 		$check = false;
 		$cinfo = null;
@@ -257,42 +257,31 @@ class ZipFile {
 
 		$rsl=[];
 		for( $i = 0; $i < $zip->numFiles; $i++ ){ 
-			$stat = $zip->statIndex( $i ); 
-			// var_dump($stat);
-			//sampai disini utk membuka file
-			$file = $zip->getFromName($stat['name']);
-			// if($regex && preg_match($regex,$stat['name'])){
-			// 	// if mode regex set
-			// 	// echo "<div><img style=\"width:300px\" src=\"data:".$ext->buffer($file).";base64,".base64_encode($file)."\"></div>";
-			// 	$cinfo = $file;
-			// 	break;
-			// }else{
-			// 	echo "mime_type=".$ext->buffer($file).'; filename='.$stat['name'] ."<br>";
-			// }
-			if(!$regex){
-				$mime = $ext->buffer($file);
-				if(!preg_match('/empty/i', $mime))
-					$rsl[preg_replace("/\\\+/","/",$stat['name'])] = [
-						"mime_type" => $mime,
-						"base64" => base64_encode($file),
+			$stat = $zip->statIndex( $i );
+			$show = true;
+			if($show){
+				$name = preg_replace("/\\\+/","/",$stat['name']);
+				if(!$match){
+					$file = $zip->getFromName($stat['name']);
+					$mime = $ext->buffer($file);
+					if(!preg_match('/empty/i', $mime))
+					$rsl[] = [
+						"name" => $name,
+						"mime" => $mime,
+						// "base64" => base64_encode($file),
 						"size" => strlen($file)
 					];
+				}else{
+					if($match == $name)
+						$cinfo = $zip->getFromName($stat['name']);					
+					$show = false;
+				}
 			}
-			
-
-			// else{
-			// 	if($file)
-			// 		echo "<p>". $file."</p>";
-							
-			// }
-				
-			// print_r( basename( $stat['name'] ) . PHP_EOL ."<br>"); 
 		}
 		
 		$zip->close();
-		$cinfo = $rsl? json_encode($rsl,JSON_PRETTY_PRINT) : $cinfo;
 
-		return $cinfo;
+		return $rsl? json_encode($rsl) : $cinfo;
 		
 	}	
 

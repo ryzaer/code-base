@@ -6,9 +6,10 @@ $zip = new \Manage\ZipFile();
 //$zip->createZip('assets/example/files','assets/compressed/files.zip');
 // example 2 output riza.zip
 $zip->fname = 'json_data';
-
 $zip->folder = "assets/zipunzip";
+// set password
 $zip->passwd = 'S$gjhs';
+// adding info
 $zip->adInfo = [
     "id"            => uniqid(),
     "code"          => "ktra-332",
@@ -21,6 +22,7 @@ $zip->adInfo = [
     "genre"         => "kajs",
     "tags"          => "okloipo, kjahdkjsfh aksdfjhkjhjsadf, ahsdkfjh kasfjhkadjsfhkjsdhf djsk, ajsdfkjhadkjsfh",
 ];
+// adding files
 $zip->adFile = [
     "assets/images/arini.jpg",
     "assets/tpsa.csv",
@@ -34,8 +36,15 @@ $zip->create("$zip->folder/$zip->fname",function($z){
     $z->files($z->adFile);
     $z->info($z->adInfo);
 });
-// header("Content-Type:application/json");
-// print $zip->open("$zip->folder/safe/$zip->fname.zip",$zip->passwd);
+// example show all content in zip file
+// default output is json
+header("Content-Type:application/json");
+print $zip->open("$zip->folder/safe/$zip->fname.zip",$zip->passwd);
+
+// example blob show image file
+// header("Content-Type:image/jpeg");
+// print $zip->open("$zip->folder/safe/$zip->fname.zip",$zip->passwd,'arini.jpg');
+
 
 // change zip password
 // $zip->protect("$zip->folder/safe/$zip->fname.zip",'12345','S$gjhs');
