@@ -21,14 +21,17 @@ $zip->adInfo = [
     "tags"          => "okloipo, kjahdkjsfh aksdfjhkjhjsadf, ahsdkfjh kasfjhkadjsfhkjsdhf djsk, ajsdfkjhadkjsfh",
 ];
 
+// create zip with password
 $zip->createZip("$zip->folder/$zip->fname",function($z){
     $z->password('S$gjhs');
     $z->export("$z->folder/safe/{$z->fname}.zip");
     $z->info($z->adInfo);
 });
+// header("Content-Type:application/json");
+// print $zip->openZip("$zip->folder/safe/$zip->fname.zip",'S$gjhs');
 
-$zip->openZip("$zip->folder/safe/$zip->fname.zip",'S$gjhs');
+// change zip password
+$zip->protectZip("$zip->folder/safe/$zip->fname.zip",'12345','S$gjhs');
+print $zip->openZip("$zip->folder/safe/$zip->fname.zip",'12345');
 
-// $zip->password('S$gjhs')->encryptZip("$zip->folder/safe/$zip->fname.zip",'12345');
-
-// $zip->extractZip("$zip->folder/safe/$zip->fname.zip","$zip->folder/open/$zip->fname",'S$gjhs');
+// $zip->extractZip("$zip->folder/safe/$zip->fname.zip","$zip->folder/open/$zip->fname",'12345');

@@ -42,19 +42,7 @@ class Archives {
 // }
 	private $create = false,
 		    $saveTo = null,
-		    $addPwd = null,
-		    $newPwd = null;
-
-	private function checkZip($file=null){
-		$status = false;
-		if($file && is_file($file)){
-			$status = true;
-		}
-		if(!$status){
-			echo "Nothing found file of $file";
-		}
-		return $status;
-	}
+		    $addPwd = null;
 
 	private function is_encrypted($zip_file = null) {
 		$status = true;
@@ -74,6 +62,21 @@ class Archives {
 		return $status;
 	}
 
+	private function is_zip($file) {
+		$iszip = false;
+		if(file_exists($file)){
+			$fh = @fopen($file, "r");
+			$blob = fgets($fh,5);
+			fclose($fh);
+			// if (strpos($blob, 'Rar') !== false) {
+			// print "Looks like a Rar.\n";
+			// } else
+			if(preg_match('/^PK/', $blob))
+				$iszip = true;
+		}
+		return $iszip;
+	}
+
 	public function createZip($source, $destination=null) {
 		$status = false;
 		$this->create = true;
@@ -81,24 +84,29 @@ class Archives {
 		if(is_callable($destination)){        
 			call_user_func($destination,$this);
 		}else{
-			$this->saveTo = $destination;
+			if(is_string($destination))
+				$this->saveTo = $destination;			
 		}
 
-		$encrypted = false;
-		if(is_file($source)){
-			$encrypted = $this->is_encrypted($source);
-		}
-
+		if(!$this->saveTo)
+			return false;
+		
 		$zip = new \ZipArchive();
-		$res = $zip->open($this->saveTo, \ZipArchive::CREATE);
+		// break if destination is file
+		if(is_file($this->saveTo)){
+			if(file_exists($this->saveTo))
+				unlink($this->saveTo);
+				
+		}
 
-		if($encrypted && $this->addPwd){
+		$res = $zip->open($this->saveTo, \ZipArchive::CREATE);
+		if($this->addPwd){
 			$zip->setPassword($this->addPwd);
 		}
 		
 		if($res){
 			$encrypt = [];
-	
+			$status = true;
 			if(is_string($this->create)){
 				$encrypt[] = "info.json";
 				$zip->addFromString("info.json", $this->create);
@@ -121,14 +129,12 @@ class Archives {
 					$encrypt[] = $paths;
 				}
 				
-			} 
-
-			else if (is_file($source)) {
+			}elseif (is_file($source)) {
 				$zip->addFromString($source, file_get_contents($source));
 				$encrypt[] = $source;				
 			} 			
 			
-			if(!$encrypted && $this->addPwd)
+			if($this->addPwd)
 				foreach ($encrypt as $path) {
 					$zip->setEncryptionName($path, \ZipArchive::EM_AES_256, $this->addPwd);
 				}
@@ -141,12 +147,8 @@ class Archives {
 	}
 
 	public function password($addPwd){
-		if(is_bool($this->create) && $this->create){
+		if($this->create)
 			$this->addPwd = $addPwd;
-		}else{
-			$this->newPwd = $addPwd;
-			return $this;
-		}
 	}
 
 	public function export($saveTo){
@@ -178,95 +180,99 @@ class Archives {
 		}
 	}
 
-	function encryptZip($source=null,$pass=null){
+	function protectZip($source,$newPwd=null,$lstPass=null){
 		
 		$status = false;
-		$newPwd = false;
-		if (is_string($this->newPwd) && $this->newPwd){
-			$newPwd = true;
-		}
 		
-		if ($newPwd && is_file($source)) {
+		if(!$this->is_zip($source)){
+			echo "File not is not zip!";
+			return false;
+		}
+
+		if(!$lstPass && $this->is_encrypted($source)){
+			echo "Set the Last Password!";
+			return false;
+		}		
+
+		if($newPwd){
 			$tmp_dir = __DIR__ .'/'. md5(microtime(true));
-			$cur_pwd = true;
-			$status  = true;
-			if($this->is_encrypted($source)){
-				if(!$pass && !is_string($pass)){
-					echo "Current Password Not Set!";
-					$cur_pwd = false;
-				}
-			}else{
-				$pass = null;
+			if(!$lstPass && $this->is_encrypted($source)){
+				echo "Current Password Not Set!";
+				return false;
 			}
-
-			if($cur_pwd && $newPwd){				
-				if($this->extractZip($source,$tmp_dir,$pass))
-					$this->addPwd = $this->newPwd; 
-					$this->createZip($tmp_dir,$source);
-					\__fn::rm($tmp_dir);
-			}			
+			if($this->extractZip($source,$tmp_dir,$lstPass)){
+				$status = true;
+				unlink($source);
+				$this->addPwd = $newPwd;
+				$this->createZip($tmp_dir,$source);
+				\__fn::rm($tmp_dir);
+			}
 		}
 
-		if(!$newPwd){
-			echo "New Password not set!";
-		}
-
-		$this->newPwd = null;
 		return $status;
 	}
 
-	function openZip($file,$pass=null){
+	function openZip($file,$pass=null,$obj_mode=false){
 		// still developing 
 		$check = false;
-		$cinfo = "Zip file not exixst!";
-		if($this->checkZip($file)){
-			$check = true;
+		$cinfo = null;
+		if(!$this->is_zip($file)){
+			print "Zip file not exixst!";
+			return false;
 		}
-		$cpass = true;
-		if($check && $this->is_encrypted($file)){
-			if(!$pass)
-				$cpass = false;
-				$cinfo = "Zip Encrypted!";
-		}
-
-		if($check && $cpass){
-			$zip = new \ZipArchive(); 
-			$ext = new \finfo(FILEINFO_MIME_TYPE);
-			$zip->open($file);
-			if($pass){
-				$zip->setPassword($pass);
-			}
-			for( $i = 0; $i < $zip->numFiles; $i++ ){ 
-				$stat = $zip->statIndex( $i ); 
-				var_dump($stat);
-				//sampai disini utk membuka file
-				$file = $zip->getFromName($stat['name']);
-				if(preg_match('/\.(jp(e?)g|png)/',$stat['name'])){
-					echo "<div><img style=\"width:300px\" src=\"data:".$ext->buffer($file).";base64,".base64_encode($file)."\"></div>";
-					
-				}
-
-				// else{
-				// 	if($file)
-				// 		echo "<p>". $file."</p>";
-					            
-				// }
-				echo "mime_type=".$ext->buffer($file).'; filename='.$stat['name'] ."<br>";
-					
-				// print_r( basename( $stat['name'] ) . PHP_EOL ."<br>"); 
-			}
-			
-			$zip->close();
-			$cinfo = null;
+		if(!$pass && $this->is_encrypted($file)){
+			print "Zip Encrypted!";
+			return false;
 		}
 
-		echo $cinfo;
+		$zip = new \ZipArchive(); 
+		$ext = new \finfo(FILEINFO_MIME_TYPE);
+		$zip->open($file);
+		if($pass){
+			$zip->setPassword($pass);
+		}
+
+		$rsl=[];
+		for( $i = 0; $i < $zip->numFiles; $i++ ){ 
+			$stat = $zip->statIndex( $i ); 
+			// var_dump($stat);
+			//sampai disini utk membuka file
+			$file = $zip->getFromName($stat['name']);
+			// if($regex && preg_match($regex,$stat['name'])){
+			// 	// if mode regex set
+			// 	// echo "<div><img style=\"width:300px\" src=\"data:".$ext->buffer($file).";base64,".base64_encode($file)."\"></div>";
+			// 	$cinfo = $file;
+			// 	break;
+			// }else{
+			// 	echo "mime_type=".$ext->buffer($file).'; filename='.$stat['name'] ."<br>";
+			// }
+			$mime = $ext->buffer($file);
+			if(!preg_match('/empty/i', $mime))
+				$rsl[preg_replace("/\\\+/","/",$stat['name'])] = [
+					"mime_type" => $mime,
+					"base64" => base64_encode($file),
+					"size" => strlen($file)
+				];
+
+			// else{
+			// 	if($file)
+			// 		echo "<p>". $file."</p>";
+							
+			// }
+				
+			// print_r( basename( $stat['name'] ) . PHP_EOL ."<br>"); 
+		}
+		
+		$zip->close();
+		$cinfo = $rsl? json_encode($rsl,JSON_PRETTY_PRINT) : $cinfo;
+
+		return $cinfo;
 		
 	}	
 
 	public function extractZip($file,$to="",$pass=null){
 		$success = false;
-		if(file_exists($file)){
+		if($this->is_zip($file)){
 			$za = new \ZipArchive(); 		
 			$za->open($file); 
 			if($pass){
