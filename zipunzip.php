@@ -41,7 +41,7 @@ $zip->create("$zip->folder/$zip->fname",function($z){
 header("Content-Type:application/json");
 print $zip->open("$zip->folder/safe/$zip->fname.zip",$zip->passwd);
 
-// example blob show image file
+// // example blob show image file
 // header("Content-Type:image/jpeg");
 // print $zip->open("$zip->folder/safe/$zip->fname.zip",$zip->passwd,'arini.jpg');
 
