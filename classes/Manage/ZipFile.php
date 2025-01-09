@@ -5,41 +5,6 @@ namespace Manage;
 
 class ZipFile {
 
-// $z = new ZipArchive();
-// if ($z->open('files/files.zip', ZipArchive::CREATE)){
-//     $string = $z->getFromName("test1.txt");
-//     echo $string;
-// }
-// ob_flush();
-// ob_get_clean();
-// $zip = new ZipArchive();
-// if ($zip->open('files/test1.zip', ZipArchive::CREATE)) {
-//     # Setting password here
-//     $zip->setPassword('12345');
-//     # Adding some files to zip
-//     $zip->addFile('test1.txt');
-//     $zip->setEncryptionName('test1.txt', ZipArchive::EM_AES_256);
-//     # Closing instance of zip object
-//     //$zip->close();
-//     exit("Done! Your zip is ready!");
-// } else {
-//     exit("Whoops:( Failed to create zip.");
-// }
-// 
-// 
-// $zip->open('files/test.zip', ZipArchive::CREATE);
-// $zip->addFromString('test.txt', 'file content goes here');
-// $zip->setEncryptionName('test.txt', ZipArchive::EM_AES_256, 'passw0rd');
-// $zip->close();
-// 
-// $zip = ZipArchive::CLOSE;
-// $zip = null;
-
-// function moveToZip($source, $destination){
-//     chmod($source, 0755);
-//     if(create($source, $destination))
-//         unlink($source);
-// }
 	private $create = false,
 		    $saveTo = null,
 		    $addPwd = null,
@@ -251,6 +216,7 @@ class ZipFile {
 		$zip = new \ZipArchive(); 
 		$ext = new \finfo(FILEINFO_MIME_TYPE);
 		$zip->open($file);
+
 		if($pass){
 			$zip->setPassword($pass);
 		}
@@ -272,11 +238,10 @@ class ZipFile {
 						"size" => strlen($file)
 					];
 				}else{
-					if($match == $name){					
+					if($match==$name){					
 						$cinfo = $zip->getFromName($name);
 						// Open the file as a stream not work on 7.4 (why?)
 						// $stream = $zip->getStream($name);
-						// var_dump($stream);
 						// if ($stream) {
 						// 	// Read the file content in chunks and stream it
 						// 	while (!feof($stream)) {
@@ -292,11 +257,110 @@ class ZipFile {
 		
 		$zip->close();
 
-		return $rsl? json_encode($rsl) : $cinfo;
+		return $rsl? json_encode($rsl) : $cinfo ;
 		
 	}	
 
-	public function extractZip($file,$to="",$pass=null){
+	public function stream($source,$FileInZip=null,$passwd=null){
+		// still not work for big file :(
+		$zip = new \ZipArchive();
+		$ext = new \finfo(FILEINFO_MIME_TYPE);
+		if ($FileInZip && $zip->open($source)) {
+			if($passwd)
+				$zip->setPassword($passwd);
+			
+			// Locate the file inside the ZIP
+			$index = $zip->locateName($FileInZip);
+			if ($index) {
+
+				// file_put_contents("{$_SERVER['TEMP']}/$FileInZip",$zip->getFromName($FileInZip));
+				// \__fn::http_file_stream("{$_SERVER['TEMP']}/$FileInZip");
+				// unlink("{$_SERVER['TEMP']}/$FileInZip");
+
+				$chunkSize = 1024 * 1024; // 1MB chunks for better performance
+
+				// $filePath = $zip->getFromName($FileInZip);
+				// $fileSize = strlen($filePath);
+				// // Detect MIME type
+				// $mimeType = $ext->buffer($filePath);
+				
+				// // Start streaming headers
+				// header("Content-Type: $mimeType");
+				// header("Content-Disposition: inline; filename=\"$FileInZip\"");
+				// header("Content-Length: $fileSize");
+
+				// // Optional: Handle partial content requests (i.e., range requests)
+				// $range = null;
+				// if (isset($_SERVER['HTTP_RANGE'])) {
+				// 	$range = str_replace('bytes=', '', $_SERVER['HTTP_RANGE']);
+				// 	$range = explode('-', $range);
+				// }
+
+				// // If a range was requested, handle the partial content logic
+				// if ($range) {
+				// 	$start = intval($range[0]);
+				// 	$end = ($range[1]) ? intval($range[1]) : $fileSize - 1;
+				// 	$length = $end - $start + 1;
+
+				// 	header("HTTP/1.1 206 Partial Content");
+				// 	header("Content-Range: bytes $start-$end/$fileSize");
+				// 	header("Content-Length: $length");
+
+				// 	// $file = fopen($filePath, 'rb');
+				// 	// Open the file as a stream
+				// 	$stream = $zip->getStream($FileInZip);
+				// 	fseek($stream, $start);
+				// } else {
+				// 	// $file = fopen($filePath, 'rb');
+				// 	$stream = $zip->getStream($FileInZip);
+				// 	$start = 0;
+				// }				
+
+				// if($stream){
+				// 	// Read the file content in chunks and stream it
+				// 	while (!feof($stream) && ($position = ftell($stream)) <= $fileSize) {
+				// 		if ($range && $position >= $end) {
+				// 			break;
+				// 		}
+				// 		// Read 1MB at a time
+				// 		print fread($stream, $chunkSize); 
+				// 		// flush();
+				// 	}
+
+				// 	fclose($stream);
+				// 	exit;
+				// }
+
+
+				// // Open the file as a stream not work on 7.4 (why?)
+				$stream = $zip->getStream($FileInZip);
+				$dataTm = null;
+				if ($stream) {
+					// Read the file content in chunks and stream it
+					while (!feof($stream)) {
+						// Read 1MB at a time
+						print fread($stream, $chunkSize); 
+						// $dataTm .= fread($stream, $chunkSize); 
+						flush();
+					}
+					// Close the stream
+					fclose($stream);
+				}
+
+				// so i will put the file to another place for streaming (its terrible)
+				// $mainDir = "{$_SERVER['TEMP']}/".md5($_SERVER['HTTP_USER_AGENT']);
+				// !is_dir($mainDir) || \__fn::rm($mainDir);
+				// mkdir($mainDir,0777);
+				// file_put_contents("$mainDir/$FileInZip",$zip->getFromName($FileInZip));
+				// \__fn::http_file_stream("$mainDir/$FileInZip");
+				// unlink("$mainDir/$FileInZip");
+			} 
+
+			$zip->close();
+		} 
+	}
+
+	public function extract($file,$to="",$pass=null){
 		$success = false;
 		if($this->is_zip($file)){
 			$za = new \ZipArchive(); 		

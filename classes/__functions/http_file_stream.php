@@ -116,9 +116,9 @@ function http_file_stream($filePath) {
     $chunkSize = 1024 * 1024; // 1MB chunks for better performance
 
     // Start streaming headers
-    header('Content-Type: ' . $mimeType);
-    header('Content-Disposition: inline; filename="' . $fileName . '"');
-    header('Content-Length: ' . $fileSize);
+    header("Content-Type: $mimeType");
+    header("Content-Disposition: inline; filename=\"$fileName\"");
+    header("Content-Length: $fileSize");
 
     // Optional: Handle partial content requests (i.e., range requests)
     $range = null;
@@ -133,9 +133,9 @@ function http_file_stream($filePath) {
         $end = ($range[1]) ? intval($range[1]) : $fileSize - 1;
         $length = $end - $start + 1;
 
-        header('HTTP/1.1 206 Partial Content');
-        header('Content-Range: bytes ' . $start . '-' . $end . '/' . $fileSize);
-        header('Content-Length: ' . $length);
+        header("HTTP/1.1 206 Partial Content");
+        header("Content-Range: bytes $start-$end/$fileSize");
+        header("Content-Length: $length");
 
         $file = fopen($filePath, 'rb');
         fseek($file, $start);

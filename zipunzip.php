@@ -31,43 +31,17 @@ $zip->create("$zip->folder/$zip->fname",function($z){
 });
 // example show all content in zip file
 // default output is json
-// header("Content-Type:application/json");
-// print $zip->open("$zip->folder/safe/$zip->fname.zip",$zip->passwd);
+header("Content-Type:application/json");
+print $zip->open("$zip->folder/safe/$zip->fname.zip",$zip->passwd);
 
 // // example blob show image file
-header("Content-Type:image/jpeg");
-print $zip->open("$zip->folder/safe/$zip->fname.zip",$zip->passwd,'arini.jpg');
-
-// $zip = new ZipArchive();
-// if ($zip->open("assets/zipunzip/safe/json_data.zip") === TRUE) {
-//     // Locate the file inside the ZIP
-//     $zip->setPassword('S$gjhs');
-		
-//     $index = $zip->locateName("arini.jpg");
-//     var_dump($index);
-//     if ($index !== false) {
-//         // Open the file as a stream
-//         $stream = $zip->getStream("arini.jpg");
-//         if ($stream) {
-//             // Read the file content in chunks and stream it
-//             while (!feof($stream)) {
-//                 echo fread($stream, 1024); // Read 1KB at a time
-//             }
-//             fclose($stream); // Close the stream
-//         } else {
-//             echo "Failed to open the file inside the ZIP.";
-//         }
-//     } else {
-//         echo "File not found inside the ZIP.";
-//     }
-//     $zip->close(); // Close the ZIP archive
-// } else {
-//     echo "Failed to open the ZIP archive.";
-// }
-
+// header("Content-Type:image/jpeg");
+// print $zip->open("$zip->folder/safe/$zip->fname.zip",$zip->passwd,'arini.jpg');
+// dont know this function works on php8 only
+// $zip->stream("$zip->folder/safe/$zip->fname.zip",'arini.jpg',$zip->passwd);
 
 // change zip password
 // $zip->protect("$zip->folder/safe/$zip->fname.zip",'12345','S$gjhs');
 // print $zip->open("$zip->folder/safe/$zip->fname.zip",'12345');
 
-// $zip->extractZip("$zip->folder/safe/$zip->fname.zip","$zip->folder/open/$zip->fname",'S$gjhs');
+// $zip->extract("$zip->folder/safe/$zip->fname.zip","$zip->folder/open/$zip->fname",'S$gjhs');
