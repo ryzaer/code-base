@@ -389,6 +389,7 @@ class ZipFile {
 			// add history logs
 			isset($logs[$fileInZip]) || file_put_contents("$temp/$json",json_encode(array_merge($logs,[$fileInZip => time()])));
 		}
+		
 		\__fn::http_file_stream("$temp/$fileInZip");
 	}
 
