@@ -30,33 +30,23 @@ $zip->fldir = "F:/.ssh/102301/{$zip->dname}";
 // }
 
 // // example blob show video file
-$temp_dir = "{$_SERVER['TEMP']}/".\__fn::create_device_id();
+// $temp_dir = "{$_SERVER['TEMP']}/".\__fn::create_device_id();
 $name_vid = "{$zip->dname}-scane-01.mp4";
-$json_vid = "logs.json";
+// $json_vid = "logs.json";
 
-is_dir($temp_dir) || mkdir($temp_dir, 0755, true);
-file_exists("$temp_dir/$json_vid") || file_put_contents("$temp_dir/$json_vid",json_encode([$name_vid => time()]));
+// is_dir($temp_dir) || mkdir($temp_dir, 0755, true);
+// file_exists("$temp_dir/$json_vid") || file_put_contents("$temp_dir/$json_vid",json_encode([$name_vid => time()]));
 
-// check logs
-$logs_vid = [];
-foreach(json_decode(file_get_contents("$temp_dir/$json_vid"),true) as $k => $v){
-    if((time() - $v) > 600){
-        // remove file if reach limit time 60 sec
-        \__fn::rm("$temp_dir/$k");
-    }else{
-        $logs_vid[$k] = $v;
-    }
-};
-file_put_contents("$temp_dir/$json_vid",json_encode($logs_vid));
+// if(!file_exists("$temp_dir/$name_vid")){    
+//     $file_vid = $zip->open("{$zip->fldir}.zip",md5($zip->dname),$name_vid);
+//     file_put_contents("$temp_dir/$name_vid",$file_vid);
+//     // add history logs
+//     isset($logs_vid[$name_vid]) || file_put_contents("$temp_dir/$json_vid",json_encode(array_merge($logs_vid,[$name_vid => time()])));
+// }
 
-if(!file_exists("$temp_dir/$name_vid")){    
-    $file_vid = $zip->open("{$zip->fldir}.zip",md5($zip->dname),$name_vid);
-    file_put_contents("$temp_dir/$name_vid",$file_vid);
-    // add history logs
-    isset($logs_vid[$name_vid]) || file_put_contents("$temp_dir/$json_vid",json_encode(array_merge($logs_vid,[$name_vid => time()])));
-}
+// \__fn::http_file_stream("$temp_dir/$name_vid");
 
-\__fn::http_file_stream("$temp_dir/$name_vid");
+$zip->stream_logs("{$zip->fldir}.zip",$name_vid,md5($zip->dname));
 
 
 

@@ -10,7 +10,7 @@ class ZipFile {
 		    $addPwd = null,
 			$addFiles=[];
 
-	private function is_encrypted($zip_file = null) {
+		private function is_encrypted($zip_file = null) {
 		$status = true;
 		// open the file
 		$zip = zip_open($zip_file);
@@ -364,6 +364,37 @@ class ZipFile {
 			$zip->close();
 		} 
 	}
+
+	public function stream_logs($fileZip=null,$fileInZip=null,$passZip=null){ 
+		$temp = "{$_SERVER['TEMP']}/".\__fn::create_device_id();
+		$json = "logs.json";
+
+		if($fileInZip){
+			is_dir($temp) || mkdir($temp, 0755, true);
+			file_exists("$temp/$json") || file_put_contents("$temp/$json",json_encode([$fileInZip => time()]));
+		}
+		if(file_exists("$temp/$json")){
+			// check logs
+			$logs = [];
+			foreach(json_decode(file_get_contents("$temp/$json"),true) as $k => $v){
+				if((time() - $v) > 600){
+					// remove file if reach limit time 60 sec
+					\__fn::rm("$temp/$k");
+				}else{
+					$logs[$k] = $v;
+				}
+			};
+			file_put_contents("$temp/$json",json_encode($logs));
+		}
+		if(!file_exists("$temp/$fileInZip")){    
+			file_put_contents("$temp/$fileInZip",$this->open($fileZip,$passZip,$fileInZip));
+			// add history logs
+			isset($logs_vid[$fileInZip]) || file_put_contents("$temp/$json",json_encode(array_merge($logs_vid,[$fileInZip => time()])));
+		}
+		\__fn::http_file_stream("$temp/$fileInZip");
+	}
+
+
 
 	public function extract($file,$to="",$pass=null){
 		$success = false;
