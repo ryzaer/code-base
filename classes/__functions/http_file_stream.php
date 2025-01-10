@@ -96,7 +96,7 @@
 // }
 
 
-function http_file_stream($filePath) {
+function http_file_stream($filePath,$mimeCustom=null) {
     
     // Check if file exists
     if (!file_exists($filePath)) {
@@ -109,9 +109,13 @@ function http_file_stream($filePath) {
     $fileName = basename($filePath);
 
     // Detect MIME type
-    $mimeType = mime_content_type($filePath);
-    if (!$mimeType)
-        $mimeType = "application/octet-stream"; // Default fallback MIME type
+    if(!$mimeCustom){
+        $mimeType = mime_content_type($filePath);
+        if (!$mimeType)
+            $mimeType = "application/octet-stream"; // Default fallback MIME type
+    }else{
+        $mimeType = $mimeCustom;
+    }
 
     $chunkSize = 1024 * 1024; // 1MB chunks for better performance
 

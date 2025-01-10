@@ -361,20 +361,24 @@ class ZipFile {
 	}
 
 	public function stream_logs($fileZip=null,$fileInZip=null,$passZip=null){ 
-		$temp = "{$_SERVER['TEMP']}/".\__fn::create_device_id();
+		$temp = "{$_SERVER['TEMP']}/".\__fn::create_device_id("zstream");
 		$json = "logs.json";
+		$fileExtension = pathinfo($fileInZip, PATHINFO_EXTENSION);
+		$mimeType = \__fn::ext2mime($fileExtension);
+		$blobfile = md5($fileInZip);
+		$blobname = str_replace(".$fileExtension","",$fileInZip);
 
 		if($fileInZip){
 			is_dir($temp) || mkdir($temp, 0755, true);
-			file_exists("$temp/$json") || file_put_contents("$temp/$json",json_encode([$fileInZip => time()]));
+			file_exists("$temp/$json") || file_put_contents("$temp/$json",json_encode([$blobfile => ['name'=>$blobname,'mime'=>$mimeType,'time'=>time()]]));
 		}
 		
 		// check logs
 		$logs = [];
 		if(file_exists("$temp/$json")){
 			foreach(json_decode(file_get_contents("$temp/$json"),true) as $k => $v){
-				if((time() - $v) > 600){
-					// remove file if reach limit time 60 sec
+				if((time() - $v['time']) > 300){
+					// remove file if reach limit time 10min
 					if(!unlink("$temp/$k"))
 						$logs[$k] = $v;
 				}else{
@@ -384,13 +388,14 @@ class ZipFile {
 			file_put_contents("$temp/$json",json_encode($logs));
 		}
 		
-		if(!file_exists("$temp/$fileInZip")){    
-			file_put_contents("$temp/$fileInZip",$this->open($fileZip,$passZip,$fileInZip));
+		if(!file_exists("$temp/$blobfile")){    			
+			file_put_contents("$temp/$blobfile",$this->open($fileZip,$passZip,$fileInZip));
 			// add history logs
-			isset($logs[$fileInZip]) || file_put_contents("$temp/$json",json_encode(array_merge($logs,[$fileInZip => time()])));
+			isset($logs[$blobfile]) || file_put_contents("$temp/$json",json_encode(array_merge($logs,[$blobfile => ['name'=>$blobname,'mime'=>$mimeType,'time'=>time()]])));
+			$logs = json_decode(file_get_contents("$temp/$json"),true);
 		}
 		
-		\__fn::http_file_stream("$temp/$fileInZip");
+		\__fn::http_file_stream("$temp/$blobfile",$logs[$blobfile]['mime']);
 	}
 
 	public function extract($file,$to="",$pass=null){

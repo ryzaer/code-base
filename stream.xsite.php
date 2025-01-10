@@ -1,11 +1,33 @@
 <?php
 require_once('autoload.php');
-// $class = new getx\sites();
+
+$base_file_dir = 'K:/.ssh/102301';
 
 $zip = new \Manage\ZipFile();
-$zip->dname = isset($_GET['id']) ? $_GET['id'] : "2767346";
-$zip->fldir = "F:/.ssh/102301/{$zip->dname}";
+$zip->dname = str_replace(".zip","", isset($_GET['file']) ? $_GET['file'] : null);
+$zip->fldir = $base_file_dir . "/{$zip->dname}";
 
+$zip->getVid = isset($_GET['id']) ? $_GET['id'] : null;
+
+// STREAM A VIDEO IN ZIP
+if($zip->getVid){
+    $zip->stream_logs("{$zip->fldir}.zip",$zip->getVid,md5($zip->dname));
+    die();
+}
+
+// SHOW LIST OF VIDEOS IN ZIP
+if(file_exists("$zip->fldir.zip")){
+    if(!file_exists("$zip->fldir.json"))
+        file_put_contents("$zip->fldir.json",$zip->open("{$zip->fldir}.zip",md5($zip->dname)));
+    $list=[];
+    foreach(json_decode(file_get_contents("$zip->fldir.json"),true) as $var => $val){
+        $list[] = "<li><a href=\"./stream.xsite.php?file={$zip->dname}.zip&id={$val['name']}\">{$val['name']}</a></li>";
+    }
+    print "<ul>".implode("",$list)."</ul>";
+    die();
+}
+
+// ZIPPER
 // if(is_dir($zip->fldir)){
 //     $zip->create($zip->fldir,function($z){
 //         $z->password(md5($z->dname));
@@ -16,22 +38,12 @@ $zip->fldir = "F:/.ssh/102301/{$zip->dname}";
 //     \__fn::rm($zip->fldir);
 // }
 
-// if(file_exists("$zip->fldir.zip")){
-//     if(!file_exists("$zip->fldir.json"))
-//         file_put_contents("$zip->fldir.json",$zip->open("{$zip->fldir}.zip",md5($zip->dname)));
-
-//     // header("Content-Type:application/json");
-//     // print file_get_contents("$zip->fldir.json");
-    
-//     header("Content-Type:video/mp4");
-//     // print $zip->open("{$zip->fldir}.zip",md5($zip->dname),"1178500-scane-02.mp4");
-//     // dont know this function works on php 8 only [localhost:8030]
-//     $zip->stream("{$zip->fldir}.zip","{$zip->dname}-scane-06.mp4",md5($zip->dname));
-// }
-
-// // example blob show video file with logs
-$name_vid = "{$zip->dname}-scane-01.mp4";
-$zip->stream_logs("{$zip->fldir}.zip",$name_vid,md5($zip->dname));
-
-
+// SHOW LIST
+$dom = \__fn::basedirs($base_file_dir,'/\.zip/');
+$list = [];
+foreach ($dom as $file) {
+    $name = basename($file);
+    $list[] = "<li><a href=\"./stream.xsite.php?file=$name\">$name</a></li>";
+}
+print "<ol>".implode("",$list)."</ol>";
 
