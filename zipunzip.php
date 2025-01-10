@@ -40,9 +40,9 @@ $zip->adFile = [
 // print $zip->open("C:/htdocs/jin.zip",null,'jin/output1.ts');
 
 
-// // example blob show image file
-// header("Content-Type:image/jpeg");
-// print $zip->open("$zip->folder/safe/$zip->fname.zip",$zip->passwd,'arini.jpg');
+// example blob show image file 
+header("Content-Type:image/jpeg");
+print $zip->open("$zip->folder/safe/$zip->fname.zip",$zip->passwd,'arini.jpg');
 // dont know this function works on php8 only
 // $zip->stream("$zip->folder/safe/$zip->fname.zip",'arini.jpg',$zip->passwd);
 

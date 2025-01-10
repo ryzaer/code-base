@@ -353,12 +353,7 @@ class ZipFile {
 				}
 
 				// so i will put the file to another place for streaming (its terrible)
-				// $mainDir = "{$_SERVER['TEMP']}/".md5($_SERVER['HTTP_USER_AGENT']);
-				// !is_dir($mainDir) || \__fn::rm($mainDir);
-				// mkdir($mainDir,0777);
-				// file_put_contents("$mainDir/$FileInZip",$zip->getFromName($FileInZip));
-				// \__fn::http_file_stream("$mainDir/$FileInZip");
-				// unlink("$mainDir/$FileInZip");
+				// you can check on stream_logs function below
 			} 
 
 			$zip->close();
@@ -373,28 +368,29 @@ class ZipFile {
 			is_dir($temp) || mkdir($temp, 0755, true);
 			file_exists("$temp/$json") || file_put_contents("$temp/$json",json_encode([$fileInZip => time()]));
 		}
+		
+		// check logs
+		$logs = [];
 		if(file_exists("$temp/$json")){
-			// check logs
-			$logs = [];
 			foreach(json_decode(file_get_contents("$temp/$json"),true) as $k => $v){
 				if((time() - $v) > 600){
 					// remove file if reach limit time 60 sec
-					\__fn::rm("$temp/$k");
+					if(!unlink("$temp/$k"))
+						$logs[$k] = $v;
 				}else{
 					$logs[$k] = $v;
 				}
 			};
 			file_put_contents("$temp/$json",json_encode($logs));
 		}
+		
 		if(!file_exists("$temp/$fileInZip")){    
 			file_put_contents("$temp/$fileInZip",$this->open($fileZip,$passZip,$fileInZip));
 			// add history logs
-			isset($logs_vid[$fileInZip]) || file_put_contents("$temp/$json",json_encode(array_merge($logs_vid,[$fileInZip => time()])));
+			isset($logs[$fileInZip]) || file_put_contents("$temp/$json",json_encode(array_merge($logs,[$fileInZip => time()])));
 		}
 		\__fn::http_file_stream("$temp/$fileInZip");
 	}
-
-
 
 	public function extract($file,$to="",$pass=null){
 		$success = false;
