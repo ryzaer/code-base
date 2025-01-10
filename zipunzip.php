@@ -8,6 +8,7 @@ $zip = new \Manage\ZipFile();
 $zip->fname = 'json_data';
 $zip->folder = "assets/zipunzip";
 // set password
+// $zip->passwd = null;
 $zip->passwd = 'S$gjhs';
 // adding info
 $zip->adInfo = [
@@ -23,22 +24,28 @@ $zip->adFile = [
     "assets/tpsa.xml",
 ];
 // create zip with password
-$zip->create("$zip->folder/$zip->fname",function($z){
-    $z->password($z->passwd);
-    $z->export("$z->folder/safe/{$z->fname}.zip");
-    $z->files($z->adFile);
-    $z->info($z->adInfo);
-});
+// $zip->create("$zip->folder/$zip->fname",function($z){
+//     $z->password($z->passwd);
+//     $z->export("$z->folder/safe/{$z->fname}.zip");
+//     $z->files($z->adFile);
+//     $z->info($z->adInfo);
+// });
 // example show all content in zip file
 // default output is json
-header("Content-Type:application/json");
-print $zip->open("$zip->folder/safe/$zip->fname.zip",$zip->passwd);
+// header("Content-Type:application/json");
+// print $zip->open("$zip->folder/$zip->fname.zip",$zip->passwd);
+
+// // example blob show video file
+// $zip->stream("C:/htdocs/jin.zip",'jin/output1.ts');
+// print $zip->open("C:/htdocs/jin.zip",null,'jin/output1.ts');
+
 
 // // example blob show image file
 // header("Content-Type:image/jpeg");
 // print $zip->open("$zip->folder/safe/$zip->fname.zip",$zip->passwd,'arini.jpg');
 // dont know this function works on php8 only
 // $zip->stream("$zip->folder/safe/$zip->fname.zip",'arini.jpg',$zip->passwd);
+
 
 // change zip password
 // $zip->protect("$zip->folder/safe/$zip->fname.zip",'12345','S$gjhs');

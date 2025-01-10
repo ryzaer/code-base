@@ -202,6 +202,11 @@ class ZipFile {
 
 	function open($file,$pass=null,$match=false){
 		// still developing 
+		// only work for image
+		// video and audio still have issues
+		// getStream is not supported in php 7 windows
+		// in php 8 getStream is supported but not working properly
+		
 		$check = false;
 		$cinfo = null;
 		if(!$this->is_zip($file)){
@@ -230,13 +235,15 @@ class ZipFile {
 				if(!$match){
 					$file = $zip->getFromName($name);
 					$mime = $ext->buffer($file);
+					// $fileExtension = pathinfo($name, PATHINFO_EXTENSION);
+					// $mime = \__fn::ext2mime($fileExtension);
 					if(!preg_match('/empty/i', $mime))
-					$rsl[] = [
-						"name" => $name,
-						"mime" => $mime,
-						// "base64" => base64_encode($file),
-						"size" => strlen($file)
-					];
+						$rsl[] = [
+							"name" => $name,
+							"mime" => $mime,
+							// "base64" => base64_encode($file),
+							"size" => $stat['size']
+						];
 				}else{
 					if($match==$name){					
 						$cinfo = $zip->getFromName($name);
@@ -255,8 +262,8 @@ class ZipFile {
 			}
 		}
 		
+		unset($ext);
 		$zip->close();
-
 		return $rsl? json_encode($rsl) : $cinfo ;
 		
 	}	
@@ -264,29 +271,28 @@ class ZipFile {
 	public function stream($source,$FileInZip=null,$passwd=null){
 		// still not work for big file :(
 		$zip = new \ZipArchive();
-		$ext = new \finfo(FILEINFO_MIME_TYPE);
 		if ($FileInZip && $zip->open($source)) {
 			if($passwd)
 				$zip->setPassword($passwd);
 			
 			// Locate the file inside the ZIP
 			$index = $zip->locateName($FileInZip);
+			// var_dump($index);
 			if ($index) {
-
-				// file_put_contents("{$_SERVER['TEMP']}/$FileInZip",$zip->getFromName($FileInZip));
-				// \__fn::http_file_stream("{$_SERVER['TEMP']}/$FileInZip");
-				// unlink("{$_SERVER['TEMP']}/$FileInZip");
 
 				$chunkSize = 1024 * 1024; // 1MB chunks for better performance
 
-				// $filePath = $zip->getFromName($FileInZip);
-				// $fileSize = strlen($filePath);
+				// // $filePath = $zip->getFromName($FileInZip);
+				// $stat = $zip->statIndex($index);
+				// $fileSize = $stat['size'];
 				// // Detect MIME type
-				// $mimeType = $ext->buffer($filePath);
+				// $fileExtension = pathinfo($stat['name'], PATHINFO_EXTENSION);
+				// $mimeType = \__fn::ext2mime($fileExtension);
+				// $mimeType = $mimeType ? $mimeType : 'application/octet-stream';
 				
 				// // Start streaming headers
 				// header("Content-Type: $mimeType");
-				// header("Content-Disposition: inline; filename=\"$FileInZip\"");
+				// header("Content-Disposition: inline; filename=\"{$stat['name']}\"");
 				// header("Content-Length: $fileSize");
 
 				// // Optional: Handle partial content requests (i.e., range requests)
@@ -328,11 +334,10 @@ class ZipFile {
 				// 	}
 
 				// 	fclose($stream);
-				// 	exit;
 				// }
 
 
-				// // Open the file as a stream not work on 7.4 (why?)
+				// Open the file as a stream not work on 7.4 (why?)
 				$stream = $zip->getStream($FileInZip);
 				$dataTm = null;
 				if ($stream) {

@@ -31,9 +31,9 @@
    <body>
       <div id="overlay">
          <video id="video" controls preload="metadata">
-            <source src="http://localhost:8030/__repository/code-base/get.xsite.php?id=1178500" type="video/mp4" size="720"/>
-            <source src="http://localhost:8030/__repository/code-base/get.xsite.php?id=1178500" type="video/mp4" size="480"/>
-            <source src="http://localhost:8030/__repository/code-base/get.xsite.php?id=1178500" type="video/mp4" size="320"/>
+            <source src="http://localhost/__repository/code-base/stream.xsite.php" type="video/mp4" size="720"/>
+            <source src="http://localhost/__repository/code-base/stream.xsite.php" type="video/mp4" size="480"/>
+            <source src="http://localhost/__repository/code-base/stream.xsite.php" type="video/mp4" size="320"/>
             <track label="Indonesia" kind="subtitles" srclang="en" src="video.sub.php" default/>
             <!--<track label="Deutsch" kind="subtitles" srclang="de" src="video.sub.php">
             <track label="Español" kind="subtitles" srclang="es" src="video.sub.php">-->

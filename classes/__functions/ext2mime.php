@@ -194,15 +194,14 @@ function ext2mime($check=true){
 		'yaml' => 'application/yaml',
 	 ];
 
-	 if(is_bool($check) && $check == true ){
+	if(is_bool($check) && $check == true ){
 		$check = $arrs;
 	}
 
 	if(is_string($check) && $check){
 		$check = strtolower(trim($check)); 
-		if(isset($arrs[$check])){
+		if(isset($arrs[$check]))
 			$check = $arrs[$check]; 
-		}
 	}
 
 	return $check ? $check : '';
