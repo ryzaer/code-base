@@ -1,14 +1,25 @@
 <?php
 require_once('autoload.php');
-
+$arr_base_dirs = [
+    'K:/.ssh/10250109',
+    'F:/.ssh/10250109',
+];
 $base_file_dir = 'K:/.ssh/102301';
+$name_file_req = isset($_GET['file']) ? $_GET['file'] : null;
+$break=false;
+foreach ($arr_base_dirs as $key => $value) {
+    if(!$break && file_exists("$value/$name_file_req")){
+        $base_file_dir = $value;
+        $break=true;
+    }
+}
 
 $zip = new \Manage\ZipFile();
-$zip->dname = str_replace(".zip","", isset($_GET['file']) ? $_GET['file'] : null);
+$zip->dname = str_replace(".zip","",$name_file_req);
 $zip->fldir = $base_file_dir . "/{$zip->dname}";
 
-$zip->getVid = isset($_GET['id']) ? $_GET['id'] : null;
 
+$zip->getVid = isset($_GET['id']) ? $_GET['id'] : null;
 // STREAM A VIDEO IN ZIP
 if($zip->getVid){
     $zip->stream_logs("{$zip->fldir}.zip",$zip->getVid,md5($zip->dname));
@@ -39,11 +50,12 @@ if(file_exists("$zip->fldir.zip")){
 // }
 
 // SHOW LIST
-$dom = \__fn::basedirs($base_file_dir,'/\.zip/');
 $list = [];
+$dom = \__fn::basedirs($arr_base_dirs,'/\.zip/');
 foreach ($dom as $file) {
     $name = basename($file);
     $list[] = "<li><a href=\"./stream.xsite.php?file=$name\">$name</a></li>";
 }
+
 print "<ol>".implode("",$list)."</ol>";
 
