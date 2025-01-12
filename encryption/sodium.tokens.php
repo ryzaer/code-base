@@ -1,9 +1,9 @@
 <?php
-require_once 'autobase.php';
+require_once '../autobase.php';
 print "SODIUM ENCRYPTION WORK ONLY PHP >= 7.4<br><br>";
 
 // folder binary storage
-$folder = "assets/sodium";
+$folder = "../assets/sodium";
 // Additional, authenticated data
 $salt_key = "authdata";
 is_dir($folder) || mkdir($folder,0755); 

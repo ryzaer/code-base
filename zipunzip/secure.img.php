@@ -1,12 +1,12 @@
 <?php
-require_once "autobase.php";
+require_once "../autobase.php";
 //Php >= 7.4
 $zip = new \Manage\ZipFile();
 // example 1 output folder.zip
-//$zip->createZip('assets/example/files','assets/compressed/files.zip');
+//$zip->createZip('../assets/example/files','../assets/compressed/files.zip');
 // example 2 output riza.zip
 $zip->fname = 'json_data';
-$zip->folder = "assets/zipunzip";
+$zip->folder = "../assets/zipunzip";
 // set password
 // $zip->passwd = null;
 $zip->passwd = 'S$gjhs';
@@ -19,9 +19,9 @@ $zip->adInfo = [
 ];
 // adding files
 $zip->adFile = [
-    "assets/images/arini.jpg",
-    "assets/tpsa.csv",
-    "assets/tpsa.xml",
+    "../assets/images/arini.jpg",
+    "../assets/tpsa.csv",
+    "../assets/tpsa.xml",
 ];
 // create zip with password
 // $zip->create("$zip->folder/$zip->fname",function($z){

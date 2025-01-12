@@ -1,5 +1,5 @@
 <?php
-include_once("autoload.php");
+include_once("../autobase.php");
 // still watch it if can run on php 7
 // $nameBaseOfFile = "2643836";
 // $zipFilePath = "F:/.ssh/102301/$nameBaseOfFile.zip"; // Path to the ZIP file
@@ -8,7 +8,7 @@ include_once("autoload.php");
 
 
 $nameBaseOfFile = "arini";
-$zipFilePath = 'assets/zipunzip/safe/json_data.zip'; // Path to the ZIP file
+$zipFilePath = '../assets/zipunzip/safe/json_data.zip'; // Path to the ZIP file
 $fileNameInsideZip = "$nameBaseOfFile.jpg"; // Name of the file inside the ZIP
 $PasswordToOpenZip = 'S$gjhs'; // If Passowrd is set
 

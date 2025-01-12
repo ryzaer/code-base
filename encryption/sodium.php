@@ -1,10 +1,10 @@
-<?php require_once "autobase.php";
+<?php require_once "../autobase.php";
 
 $time = microtime(true);
 if(isset($_GET['open']) && $_GET['open']){
     // example link "code-base/sodium.php?open=677b7b1eb0afa.bin"
     $deimg = "<i><b style=\"color:red\">Image not exists!</b></i>";
-    $filex = "assets/sodium/{$_GET['open']}";
+    $filex = "../assets/sodium/{$_GET['open']}";
     if(file_exists($filex)){
         $image = file_get_contents($filex);
         $enkey = preg_replace("/\.(jpg|bin)/","",$_GET['open']);
@@ -115,7 +115,7 @@ $plaintext = <<<JSON
 }
 JSON;
 
-$folder = "assets/sodium";
+$folder = "../assets/sodium";
 
 print "<br><br>".implode("<br>",[
 "<b style=\"font-family:monospace;font-size:18px\">=======================================================================>",
@@ -126,7 +126,7 @@ print "<br><br>".implode("<br>",[
 "======== example decrypt : Crypto\sodium::decrypt(data,saltkey); ======>",
 "=======================================================================></b>"
 ])."<br>";
-// $plaintext = file_get_contents("assets/images/arini.jpg");
+// $plaintext = file_get_contents("../assets/images/arini.jpg");
 var_dump($plaintext);
 // Example Default Salt Key
 $ciphertext = Crypto\sodium::encrypt($plaintext);
@@ -148,9 +148,9 @@ file_put_contents("$folder/data.bin",$ciphertext);
 Crypto\sodium::close();
 
 echo "<b>Decrypt Using Key [{$get_keys['key']}] & Nonce [{$get_keys['nonce']}]</b>";
-var_dump(Crypto\sodium::decrypt(file_get_contents("assets/sodium/data.bin"),$get_keys));
+var_dump(Crypto\sodium::decrypt(file_get_contents("../assets/sodium/data.bin"),$get_keys));
 echo "<b>Decrypt Using Salt Key [$get_salt]</b>";
-var_dump(Crypto\sodium::decrypt(file_get_contents("assets/sodium/data.bin"),$get_salt));
+var_dump(Crypto\sodium::decrypt(file_get_contents("../assets/sodium/data.bin"),$get_salt));
 
 Crypto\sodium::close();
 
