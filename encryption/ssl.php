@@ -1,4 +1,4 @@
-<?php require_once "../../code-base/autobase.php";
+<?php require_once "autobase.php";
 
 $time = microtime(true);
 $text = 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorum, aliquid consequuntur quisquam minus in rerum consequatur sed reprehenderit. Est, fugit cupiditate officiis error natus consequuntur obcaecati perspiciatis veniam deserunt nihil!';

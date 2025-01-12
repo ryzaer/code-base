@@ -1,4 +1,4 @@
-<?php require_once "../../code-base/autobase.php";
+<?php require_once "autobase.php";
 
 $time = microtime(true);
 if(isset($_GET['open']) && $_GET['open']){
