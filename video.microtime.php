@@ -78,6 +78,28 @@ $filename = "video.php?fname=$file_path";
     body {
       margin:0
     }
+    #timeRange {
+      margin-top:15px;
+      margin-bottom:15px;
+      text-align:left;
+      width:100%;
+      padding-left: 37%;
+    }
+    @media screen and (max-width: 1200px) {
+      #timeRange {
+        padding-left: 30%;
+      }
+    }
+    @media screen and (max-width: 900px) {
+      #timeRange {
+        padding-left: 20%;
+      }
+    }
+    @media screen and (max-width: 600px) {
+      #timeRange {
+        padding-left: 5%;
+      }
+    }
   </style>
 </head>
 <body>
@@ -86,6 +108,16 @@ $filename = "video.php?fname=$file_path";
   <source src="<?=$filename?>" type="video/mp4">
   Your browser does not support the video tag.
 </video>
+<div style="width:100%;text-align:right;position:absolute">
+  <div id="timeDisplay2" style="padding-right:5px">00:00.000 / 00:00.000</div>
+</div>
+<div id="timeDisplay" style="padding-left:5px">Time : 0 Seconds</div>
+<div id="progressContainer">
+  <div id="progressBar"></div>
+</div>
+<div id="popupScreenshot">
+  <img id="popupImage" alt="Screenshot Popup">
+</div>
 
 <div id="controls">
   <button id="playButton" title="Stop (press space)">&#9658;</button>
@@ -101,22 +133,12 @@ $filename = "video.php?fname=$file_path";
 <div id="Prompts" style="width:100%;text-align:center">
   From <input type="text"> To <input type="text">
 </div>
-<div style="width:100%;text-align:right;position:absolute">
-  <div id="timeDisplay2">00:00.000 / 00:00.000</div>
-</div>
-<div id="timeDisplay">Time Seconds: 0</div>
 
-<div id="progressContainer">
-  <div id="progressBar"></div>
+<div id="timeRange">
+ <code id="timeRangeCut"></code>
 </div>
 
-<div style="width:100%;text-align:left;padding-left:35%; padding-bottom:20px">
-  <code id="timeRangeCut"></code>
-</div>
-
-<div id="popupScreenshot">
-  <img id="popupImage" alt="Screenshot Popup">
-</div>
+<div id="vidScreenshot" style="padding:5px;line-height:10px"></div>
 
 <script>
   const video = document.getElementById('myVideo'),
@@ -136,6 +158,7 @@ $filename = "video.php?fname=$file_path";
         timeCuts = document.getElementById('timeCuts'),
         timeGet = document.getElementById('timeGet'),
         timeRange = document.getElementById('timeRangeCut'),
+        vidScreenshot = document.getElementById('vidScreenshot'),
         val1 = document.getElementById("Prompts").getElementsByTagName('input')[0],
         val2 = document.getElementById("Prompts").getElementsByTagName('input')[1];
 
@@ -160,6 +183,7 @@ $filename = "video.php?fname=$file_path";
           // reset!
           timeRange.innerText = ""
     }
+    vidScreenshot.innerText=""
   });
   timeGet.addEventListener('click', () => {
     if(val1.value && val2.value){
@@ -181,7 +205,7 @@ $filename = "video.php?fname=$file_path";
 
     progressBar.style.width = `${percent}%`;
     // Update the time display
-    timeDisplay.innerText = `Time Seconds: ${fixTime}`;
+    timeDisplay.innerText = `Time : ${fixTime} Seconds`;
     timeDisplay2.innerText = `${curTime}.${lstTime} / ${durTime}.${dstTime}`;
   });
   video.addEventListener('click', () => {
@@ -310,9 +334,9 @@ function GetScreenShot() {
 
     const dataURL = canvas.toDataURL('image/webp');
     const img = document.createElement('img');
-    img.style = 'width:400px;padding:0;margin: 0 10px 5px 0';
+    img.style = 'width:250px;padding:0;margin:5px';
     img.src = dataURL;
-    document.body.appendChild(img);
+    vidScreenshot.appendChild(img);
 }
   screenshotButton.addEventListener('click', GetScreenShot);
 
@@ -330,7 +354,7 @@ function GetScreenShot() {
     if (document.fullscreenElement) {
       fullscreenButton.textContent = 'Exit Fullscreen';
     } else {
-      fullscreenButton.textContent = 'Fullscreen';
+      fullscreenButton.textContent = 'Z';
     }
   });
 
