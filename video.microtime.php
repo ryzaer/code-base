@@ -2,8 +2,8 @@
 $file_path = urlencode('C:\htdocs\jin.mp4');
 if(isset($_GET['fname']) && $_GET['fname']){
   foreach ([
-      "K:/.ssh/11250111",
-      "F:/.ssh/11250111",
+      "K:/.attachments/11250111",
+      "F:/.attachments/11250111",
   ] as $dir) {
       if(file_exists("$dir/{$_GET['fname']}"))
           $file_path = urlencode("$dir/{$_GET['fname']}");
