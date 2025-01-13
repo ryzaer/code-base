@@ -19,19 +19,44 @@ $icons = [
     'apps'  	=> 'appstore.p'
 ];
 
-// var_dump($_GET);die();
-
-$md1 = isset($_GET['logo']) && isset($icons[$_GET['logo']])? "$icdir/{$icons[$_GET['logo']]}" : "$icdir/local.png";
-$md2 = isset($_GET['text'])? urldecode($_GET['text']) : 'polresta pontianak kota';
+$md1 = isset($_GET['logo']) && isset($icons[$_GET['logo']])? "$icdir/{$icons[$_GET['logo']]}" : "$icdir/restaptk.png";
+$md2 = isset($_GET['text'])? urldecode($_GET['text']) : 'https://polrestapontianak.org/skck/registrasi';
 //quality level, size, border, bg color, fore color
 $md3  = isset($_GET['size'])? explode(",",$_GET['size']) : [];
-$size = count($md3)==3 ? $md3 : ['medium',17,0];
+$size = count($md3)==3 ? $md3 : ['medium',17,1];
 
 
-$test = new \QRcode\generate($md2,$size[0]);
-$test->logo($md1,3.5,2.75);
-//$test->logo($md1);
-//$test->size($size[1],$size[2]);
-$test->size($size[1],$size[2],0x121212);
-//$test->save('test.png');
-$test->load();
+$qr = new \QRcode\generate($md2,$size[0]);
+$qr->logo($md1,4,2.75);
+//$qr->logo($md1);
+
+// example streaming png file
+// $qr->size($size[1],$size[2],0x121212); // black
+//$qr->size($size[1],$size[2]);
+// $qr->size($size[1],$size[2],0x022178); // blue
+
+// example export file
+$qr->save('assets/qrcode.png');
+header('Content-type: text/html');
+$html = <<<HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="shortcut icon" href="assets/icons/restaptk.png" type="image/png">
+	<title>QR Code | $md2</title>
+</head>
+<body>
+	<style>
+		body { margin: 0; background-color: #000; color: #fff; }
+	</style>
+	<center><img width="500" src="assets/qrcode.png" /><h4>$md2</h4></center>
+</body>
+</html>
+HTML;
+print $html;
+
+// generate qr
+$qr->load();
+
