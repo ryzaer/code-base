@@ -18,20 +18,20 @@ $num = 1127/30;
 // for hls parse\ffmpeg::convert("file_video.mp4")->hls()->export("folder/filename");
 //
 parse\ffmpeg::convert(function($x){
-    $folder = 'K:\.ssh\11250111';
+    $folder = 'K:\.attachments\11250111';
     // $folder = 'I:\Videos\@Movies\ASIA\JAPAN\.18JP\comp-totte';
     //$folder = 'G:\@Backup_WWW\asin_ebook\edited\videobind_03_jav\uncomprez';
     //$folder = 'G:\@Backup_WWW\asin_ebook\edited\vidBind\@ENTITY';
     //$folder = 'C:\Action!\Video'; 
     // $folder = "D:/riza-ttnt/Videos";
-    $fname  = "4106665";
+    $fname  = "4339591-2";
     $sname  = "$fname";
     $fmove  = "$sname";
     // $fmove = "D:/$sname";
     // in mode avi you will get fast result
     // but precission depending on fps
     // $x->mode('avi'); // params : avi, m3u8_hls, image_gif, image_webp   
-    // $x->fps(30);  // mode avi will ignored if have value
+    $x->fps(30);  // mode avi will ignored if have value
     // $x->scale(720);  // mode avi will ignored if have value
     // $x->fixtimecut("-1.5","+1.5");
     
@@ -40,16 +40,11 @@ parse\ffmpeg::convert(function($x){
     $x->param("$folder/$sname.mp4","$fname-cut.mp4")->split([
         // dont remove this example 
         //["00:00.000","00:00.000",true,"$fname-scane-%s.mp4"],
-        ["14:33.353","15:53.289"],
-        ["16:12.923","17:47.640"],
-        ["18:20.743","18:31.900",true,"$fmove-scane-%s.mp4"],
-        ["27:00.177","28:37.280"],
-        ["30:41.601","32:20.081",true,"$fmove-scane-%s.mp4"], 
-        ["36:30.301","39:20.352",true,"$fmove-scane-%s.mp4"],
-        ["39:36.273","41:29.574"],
-        ["55:03.850","55:41.101",true,"$fmove-scane-%s.mp4"],
-        ["55:41.101","59:30.349",true,"$fmove-scane-%s.mp4"],
-
+        ["02:08.061","03:52.788"],
+        ["04:26.008","05:57.910"],
+        ["10:43.614","12:53.088",true,"$fmove-scane-%s.mp4"],
+        ["12:53.088","13:55.919"],
+        ["14:45.272","16:06.391",true,"$fmove-scane-%s.mp4"],
     ])->print();
     // ])->print("D:");
 });
