@@ -96,7 +96,7 @@
 // }
 
 
-function http_file_stream($filePath,$mimeCustom=null) {
+function http_file_stream($filePath,$mimeType="application/octet-stream") {
     
     // Check if file exists
     if (!file_exists($filePath)) {
@@ -105,17 +105,15 @@ function http_file_stream($filePath,$mimeCustom=null) {
         exit("File not found.");
     }
 
+    // Open the file
+    $file = fopen($filePath, 'rb');
     $fileSize = filesize($filePath);
     $fileName = basename($filePath);
 
     // Detect MIME type
-    if(!$mimeCustom){
-        $mimeType = mime_content_type($filePath);
-        if (!$mimeType)
-            $mimeType = "application/octet-stream"; // Default fallback MIME type
-    }else{
-        $mimeType = $mimeCustom;
-    }
+    $checkMime = mime_content_type($filePath);
+    if ($checkMime)
+        $mimeType = $checkMime;
 
     $chunkSize = 1024 * 1024; // 1MB chunks for better performance
 
@@ -125,6 +123,7 @@ function http_file_stream($filePath,$mimeCustom=null) {
     header("Content-Length: $fileSize");
 
     // Optional: Handle partial content requests (i.e., range requests)
+    $start = 0;
     $range = null;
     if (isset($_SERVER['HTTP_RANGE'])) {
         $range = str_replace('bytes=', '', $_SERVER['HTTP_RANGE']);
@@ -143,9 +142,6 @@ function http_file_stream($filePath,$mimeCustom=null) {
 
         $file = fopen($filePath, 'rb');
         fseek($file, $start);
-    } else {
-        $file = fopen($filePath, 'rb');
-        $start = 0;
     }
 
     // Stream the file in chunks
