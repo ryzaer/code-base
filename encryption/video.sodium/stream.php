@@ -113,12 +113,12 @@ function streamVideo($filePath,$key=null,$mimeType="application/octet-stream") {
     exit;
 }
 include_once "conf.php";
-$videoFile = $path.'/output.mp4'; // Ganti dengan file video Anda
-$videoFile = $path.'/video_encrypted.sodium'; // Ganti dengan file video Anda
+$videoFile = $path.'/jin.mp4'; // Ganti dengan file video Anda
+// $videoFile = $path.'/video_encrypted.sodium'; // Ganti dengan file video Anda
 if (file_exists($videoFile)) {
-    $key = file_get_contents($path.'/video_encrypted.key');
-    streamVideo($videoFile,$key,"video/mp4");
-    // streamVideo($videoFile);
+    // $key = file_get_contents($path.'/video_encrypted.key');
+    // streamVideo($videoFile,$key,"video/mp4");
+    streamVideo($videoFile);
 } else {
     http_response_code(404);
     echo "Video tidak ditemukan.";

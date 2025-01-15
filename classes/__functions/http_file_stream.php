@@ -96,7 +96,7 @@
 // }
 
 
-function http_file_stream($filePath,$mimeType="application/octet-stream") {
+function http_file_stream($filePath,$mimeType=null) {
     
     // Check if file exists
     if (!file_exists($filePath)) {
@@ -111,16 +111,22 @@ function http_file_stream($filePath,$mimeType="application/octet-stream") {
     $fileName = basename($filePath);
 
     // Detect MIME type
-    $checkMime = mime_content_type($filePath);
-    if ($checkMime)
-        $mimeType = $checkMime;
+    if(!$mimeType){
+        $checkMime = mime_content_type($filePath);
+        if ($checkMime){
+            $mimeType = $checkMime;
+        }else{
+            $mimeType = "application/octet-stream";
+        }
+    }
 
-    $chunkSize = 1024 * 1024; // 1MB chunks for better performance
+    $chunkSize = 8192; // 8 byte chunks
 
     // Start streaming headers
     header("Content-Type: $mimeType");
     header("Content-Disposition: inline; filename=\"$fileName\"");
     header("Content-Length: $fileSize");
+    header('Accept-Ranges: bytes');
 
     // Optional: Handle partial content requests (i.e., range requests)
     $start = 0;
@@ -133,7 +139,7 @@ function http_file_stream($filePath,$mimeType="application/octet-stream") {
     // If a range was requested, handle the partial content logic
     if ($range) {
         $start = intval($range[0]);
-        $end = ($range[1]) ? intval($range[1]) : $fileSize - 1;
+        $end = isset($range[1]) && $range[1] ? intval($range[1]) : $fileSize - 1;
         $length = $end - $start + 1;
 
         header("HTTP/1.1 206 Partial Content");
@@ -146,11 +152,13 @@ function http_file_stream($filePath,$mimeType="application/octet-stream") {
 
     // Stream the file in chunks
     while (!feof($file) && ($position = ftell($file)) <= $fileSize) {
-        if ($range && $position >= $end) {
+        if ($range && $position >= $end)
             break;
-        }
-        echo fread($file, $chunkSize);
-        flush(); // Ensure each chunk is sent to the client
+        
+        print fread($file, 8192);// 8 byte chunks
+        ob_flush();
+        flush(); 
+        // Ensure each chunk is sent to the client
     }
 
     fclose($file);
