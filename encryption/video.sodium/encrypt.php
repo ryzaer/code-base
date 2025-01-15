@@ -1,15 +1,13 @@
 <?php
 function encryptFile($inputFile, $outputFile, $key) {
-    if (strlen($key) !== SODIUM_CRYPTO_SECRETBOX_KEYBYTES) {
-        throw new Exception("Kunci harus sepanjang " . SODIUM_CRYPTO_SECRETBOX_KEYBYTES . " bytes.");
-    }
+    if (strlen($key) !== SODIUM_CRYPTO_SECRETBOX_KEYBYTES) 
+        throw new Exception("Kunci harus sepanjang " . SODIUM_CRYPTO_SECRETBOX_KEYBYTES . " bytes.");    
 
     // Membuka file input dan output
     $inputHandle = fopen($inputFile, 'rb');
-    if (!$inputHandle) {
+    if (!$inputHandle) 
         throw new Exception("Gagal membuka file input.");
-    }
-
+    
     $outputHandle = fopen($outputFile, 'wb');
     if (!$outputHandle) {
         fclose($inputHandle);

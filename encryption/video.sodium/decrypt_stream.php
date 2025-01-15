@@ -1,14 +1,13 @@
 <?php
+require_once "../../autobase.php";
 function decryptFile($encryptedFile, $outputFile, $key) {
-    if (strlen($key) !== SODIUM_CRYPTO_SECRETBOX_KEYBYTES) {
+    if (strlen($key) !== SODIUM_CRYPTO_SECRETBOX_KEYBYTES) 
         throw new Exception("Kunci harus sepanjang " . SODIUM_CRYPTO_SECRETBOX_KEYBYTES . " bytes.");
-    }
-
+    
     // Membuka file terenkripsi
     $inputHandle = fopen($encryptedFile, 'rb');
-    if (!$inputHandle) {
-        throw new Exception("Gagal membuka file terenkripsi.");
-    }
+    if (!$inputHandle) 
+        throw new Exception("Gagal membuka file terenkripsi.");    
 
     // Membuka file output
     $outputHandle = fopen($outputFile, 'wb');
@@ -29,9 +28,8 @@ function decryptFile($encryptedFile, $outputFile, $key) {
     $chunkSize = 8192 + SODIUM_CRYPTO_SECRETBOX_MACBYTES; // Panjang chunk terenkripsi
     while (!feof($inputHandle)) {
         $encryptedChunk = fread($inputHandle, $chunkSize);
-        if ($encryptedChunk === false || strlen($encryptedChunk) === 0) {
-            break;
-        }
+        if ($encryptedChunk === false || strlen($encryptedChunk) === 0) 
+            break;        
 
         // Mendekripsi chunk
         $decryptedChunk = sodium_crypto_secretbox_open($encryptedChunk, $nonce, $key);
@@ -49,7 +47,7 @@ function decryptFile($encryptedFile, $outputFile, $key) {
     fclose($inputHandle);
     fclose($outputHandle);
 
-    echo "File berhasil didekripsi.\n";
+    // echo "File berhasil didekripsi.\n";
 }
 
 // Contoh penggunaan
@@ -59,6 +57,9 @@ try {
     $outputFile = "$path/video_decrypted.mp4";       // File hasil dekripsi
     $key = file_get_contents("$path/video_encrypted.key"); // Baca kunci dari file
     decryptFile($encryptedFile, $outputFile, $key);
+    // stream ini kurang direkomendasikan
+    \__fn::http_file_stream($outputFile);
 } catch (Exception $e) {
     echo "Kesalahan: " . $e->getMessage();
 }
+
