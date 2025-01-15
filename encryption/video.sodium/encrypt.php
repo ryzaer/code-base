@@ -21,7 +21,7 @@ function encryptFile($inputFile, $outputFile, $key) {
     fwrite($outputHandle, $nonce); // Simpan nonce di awal file output
 
     // Ukuran chunk
-    $chunkSize = 4096;
+    $chunkSize = 8192;
 
     while (!feof($inputHandle)) {
         $chunk = fread($inputHandle, $chunkSize);
@@ -54,7 +54,7 @@ try {
     $inputFile = "$path/output.mp4";
     $outputFile = "$path/video_encrypted.sodium";
     $key = random_bytes(SODIUM_CRYPTO_SECRETBOX_KEYBYTES); // Kunci rahasia yang aman
-    file_put_contents("$path/encryption_key.key", $key); // Simpan kunci ke file terpisah
+    file_put_contents("$path/video_encrypted.key", $key); // Simpan kunci ke file terpisah
     encryptFile($inputFile, $outputFile, $key);
 } catch (Exception $e) {
     echo "Kesalahan: " . $e->getMessage() . "\n";

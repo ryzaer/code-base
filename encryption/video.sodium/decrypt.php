@@ -26,7 +26,7 @@ function decryptFile($encryptedFile, $outputFile, $key) {
     }
 
     // Mendekripsi file secara chunk
-    $chunkSize = 4096 + SODIUM_CRYPTO_SECRETBOX_MACBYTES; // Panjang chunk terenkripsi
+    $chunkSize = 8192 + SODIUM_CRYPTO_SECRETBOX_MACBYTES; // Panjang chunk terenkripsi
     while (!feof($inputHandle)) {
         $encryptedChunk = fread($inputHandle, $chunkSize);
         if ($encryptedChunk === false || strlen($encryptedChunk) === 0) {
@@ -57,7 +57,7 @@ include_once "conf.php";
 try {
     $encryptedFile = "$path/video_encrypted.sodium"; // File terenkripsi
     $outputFile = "$path/video_decrypted.mp4";       // File hasil dekripsi
-    $key = file_get_contents("$path/encryption_key.key"); // Baca kunci dari file
+    $key = file_get_contents("$path/video_encrypted.key"); // Baca kunci dari file
     decryptFile($encryptedFile, $outputFile, $key);
 } catch (Exception $e) {
     echo "Kesalahan: " . $e->getMessage();

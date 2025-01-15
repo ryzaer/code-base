@@ -19,7 +19,7 @@ function streamVideo($filePath,$key=null,$mimeType="application/octet-stream") {
         $fileName = str_replace('.sodium', '.mp4', $fileName);
         $nonce = fread($file, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
         $fileSize = filesize($filePath) - SODIUM_CRYPTO_SECRETBOX_NONCEBYTES;
-        $chunkSize = 4096 + SODIUM_CRYPTO_SECRETBOX_MACBYTES; // Chunk terenkripsi dengan MAC
+        $chunkSize = 8192 + SODIUM_CRYPTO_SECRETBOX_MACBYTES; // Chunk terenkripsi dengan MAC
     }else{
         $fileSize = filesize($filePath);
         // 1MB chunks for better performance
@@ -30,7 +30,7 @@ function streamVideo($filePath,$key=null,$mimeType="application/octet-stream") {
     }
     
     // Start streaming headers
-    // header("Content-Type: $mimeType");
+    header("Content-Type: $mimeType");
     header("Content-Disposition: inline; filename=\"$fileName\"");
     header("Content-Length: $fileSize");
     header('Accept-Ranges: bytes');
@@ -116,7 +116,7 @@ include_once "conf.php";
 $videoFile = $path.'/output.mp4'; // Ganti dengan file video Anda
 $videoFile = $path.'/video_encrypted.sodium'; // Ganti dengan file video Anda
 if (file_exists($videoFile)) {
-    $key = file_get_contents($path.'/encryption_key.key');
+    $key = file_get_contents($path.'/video_encrypted.key');
     streamVideo($videoFile,$key,"video/mp4");
     // streamVideo($videoFile);
 } else {
