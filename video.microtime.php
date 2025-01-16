@@ -2,8 +2,8 @@
 $file_path = urlencode('C:\htdocs\jin.mp4');
 if(isset($_GET['fname']) && $_GET['fname']){
   foreach ([
-      "K:/.attachments/11250111",
-      "F:/.attachments/11250111",
+      "K:/.attachments/11250111/fc2",
+      "F:/.attachments/11250111/fc2",
   ] as $dir) {
       if(file_exists("$dir/{$_GET['fname']}"))
           $file_path = urlencode("$dir/{$_GET['fname']}");
@@ -21,8 +21,8 @@ $filename = "video.php?fname=$file_path";
     /* Style the video */
     video {
       display: block;
-      width: 60%;
-      margin-left:20%;
+      height: 40vh;
+      /* margin-left:40vw; */
       margin-top: 10px;
       margin-bottom: 10px;
     }
@@ -104,10 +104,12 @@ $filename = "video.php?fname=$file_path";
 </head>
 <body>
 
-<video id="myVideo" data-dir="<?=$file_path?>">
-  <source src="<?=$filename?>" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+<center>
+  <video id="myVideo" data-dir="<?=$file_path?>">
+    <source src="<?=$filename?>" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+</center>
 <div style="width:100%;text-align:right;position:absolute">
   <div id="timeDisplay2" style="padding-right:5px">00:00.000 / 00:00.000</div>
 </div>
