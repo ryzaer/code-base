@@ -44,6 +44,8 @@ function encryptFile($inputFile, $outputFile, $key) {
     fclose($outputHandle);
 
     echo "File berhasil dienkripsi.\n";
+
+    return $nonce;
 }
 
 // Contoh penggunaan
@@ -53,7 +55,13 @@ try {
     $outputFile = "$path/video_encrypted.sodium";
     $key = random_bytes(SODIUM_CRYPTO_SECRETBOX_KEYBYTES); // Kunci rahasia yang aman
     file_put_contents("$path/video_encrypted.key", $key); // Simpan kunci ke file terpisah
-    encryptFile($inputFile, $outputFile, $key);
+    
+    $getNonce = encryptFile($inputFile, $outputFile, $key);
+    file_put_contents("$path/video_encrypted.json", base64_encode(json_encode([
+        "key" => bin2hex($key),
+        "size" => filesize($outputFile)-filesize($inputFile),
+        "nonce" => bin2hex($getNonce)
+    ])));
 } catch (Exception $e) {
     echo "Kesalahan: " . $e->getMessage() . "\n";
 }

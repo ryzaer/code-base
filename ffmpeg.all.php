@@ -18,7 +18,7 @@ $num = 1127/30;
 // for hls parse\ffmpeg::convert("file_video.mp4")->hls()->export("folder/filename");
 //
 parse\ffmpeg::convert(function($x){
-    $folder = 'K:\.attachments\11250111\fc2';
+    $folder = 'F:\.attachments\11250111\fc2';
     // $folder = 'I:\Videos\@Movies\ASIA\JAPAN\.18JP\comp-totte';
     //$folder = 'G:\@Backup_WWW\asin_ebook\edited\videobind_03_jav\uncomprez';
     //$folder = 'G:\@Backup_WWW\asin_ebook\edited\vidBind\@ENTITY';
