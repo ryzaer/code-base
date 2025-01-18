@@ -24,7 +24,7 @@ parse\ffmpeg::convert(function($x){
     //$folder = 'G:\@Backup_WWW\asin_ebook\edited\vidBind\@ENTITY';
     //$folder = 'C:\Action!\Video'; 
     // $folder = "D:/riza-ttnt/Videos";
-    $fname  = "4575756";
+    $fname  = "video_name";
     $sname  = "$fname";
     $fmove  = "$sname";
     // $fmove = "D:/$sname";
