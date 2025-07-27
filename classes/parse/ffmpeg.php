@@ -140,11 +140,13 @@ class ffmpeg {
 		$this->move = preg_replace('~[\\\]~','/',$destination);
 	}
 	public function export($destination){
-		if($this->output && $this->mode == "m3u8_hls"){
+		if($this->mode == "m3u8_hls"){
 			preg_match('/windows/',strtolower($_SERVER['SystemRoot']),$root);
 			$rand = $root ? "%%" : "%";
-			$destination = $this->moveto($destination);
-			echo "{$this->output} \"$destination-%3d.ts\" \"$destination.m3u8\"";
+			// $destination = $this->moveto($destination);
+			$this->output = "ffmpeg -y -i \"{$this->input}\" -c:v libx264 -preset faster -c:a aac -b:96k -f hls -hls_time 2 -hls_list_size 0 -start_number 1 -hls_segment_filename";
+			$file = str_replace('.mp4','',$this->input);
+			print "{$this->output} \"$destination/{$file}-%03d.ts\" \"{$destination}/{$file}.m3u8\"";
 		}
 	}
 	public function unlink(){
@@ -160,11 +162,11 @@ class ffmpeg {
 			$this->cmfps = is_numeric($val) ? $val : $this->cmfps;
 		}
 
-		if($this->mode == "m3u8_hls"){			
-			// -start_number 1 -hls_segment_filename filename-%3d.ts meaning 3digits for auto numbering start from 1 devault 0
-			//$this->output = "ffmpeg -y -i \"{$this->input}\" $codec -f hls -g 2 -hls_time 10 -hls_list_size 0 -start_number 1 -hls_segment_filename";
-			$this->hls = "-f hls -g 2 -hls_time 10 -hls_list_size 0 -start_number 1 -hls_segment_filename";
-		}
+		// if($this->mode == "m3u8_hls"){			
+		// 	// -start_number 1 -hls_segment_filename filename-%3d.ts meaning 3digits for auto numbering start from 1 devault 0
+		// 	//$this->output = "ffmpeg -y -i \"{$this->input}\" $codec -f hls -g 2 -hls_time 10 -hls_list_size 0 -start_number 1 -hls_segment_filename";
+		// 	$this->hls = "-f hls -g 2 -hls_time 10 -hls_list_size 0 -start_number 1 -hls_segment_filename";
+		// }
 		if($this->scale && $this->mode == "image_gif"){	
 			// being include on "video filter params [-vf]"	
 			// place function scale after mode function	
