@@ -144,7 +144,7 @@ class ffmpeg {
 			preg_match('/windows/',strtolower($_SERVER['SystemRoot']),$root);
 			$rand = $root ? "%%" : "%";
 			// $destination = $this->moveto($destination);
-			$this->output = "ffmpeg -y -i \"{$this->input}\" -c:v libx264 -preset faster -c:a aac -b:96k -f hls -hls_time 2 -hls_list_size 0 -start_number 1 -hls_segment_filename";
+			$this->output = "ffmpeg -y -i \"{$this->input}\" -c:v libx264 -preset faster -c:a aac -b:a 96k -f hls -hls_time 2 -hls_list_size 0 -start_number 1 -hls_segment_filename";
 			$file = str_replace('.mp4','',$this->input);
 			print "{$this->output} \"$destination/{$file}-%03d.ts\" \"{$destination}/{$file}.m3u8\"";
 		}
