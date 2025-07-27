@@ -122,7 +122,9 @@ class ffmpeg {
 	{
 		$self = self::thisClass(true);
 		$vals = is_numeric($num) ? $num : false;
-		$self->scale = "scale=".($revers ? "$vals:ih*$vals/iw" : "iw*$vals/ih:$vals");
+		// scale=trunc(iw*720/ih/2)*2:720
+		// $self->scale = "scale=".($revers ? "$vals:ih*$vals/iw" : "iw*$vals/ih:$vals");
+		$self->scale = "scale=".($revers ? "trunc(iw*$vals/ih/2)*2:$vals" : "trunc(ih*$vals/iw/2)*2:$vals")." -force_key_frames \"expr:gte(t,0)\"";
 		return $self;
 	}
 	public static function cut()

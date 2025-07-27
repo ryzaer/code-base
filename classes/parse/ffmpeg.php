@@ -186,7 +186,9 @@ class ffmpeg {
 			$vals = $vals ? "$vals:-1" : $vals;
 			$this->scale = "scale=$vals:flags=lanczos";
 		}else{
-			$this->scale = "scale=".($revers ? "$vals:ih*$vals/iw" : "iw*$vals/ih:$vals");
+			// $this->scale = "scale='if(gt(iw,ih),trunc($vals*iw/ih/2)*2,$vals)':'if(gt(iw,ih),$vals,trunc($vals*ih/iw/2)*2)'";
+			// $this->scale = "scale=".($revers ? "$vals:ceil(ih*$vals/iw)" : "ceil(iw*$vals/ih):$vals");
+			$this->scale = "scale=".($revers ? "$vals:trunc(iw*$vals/ih/2)*2" : "trunc($vals*ih/iw/2)*2:$vals");
 		}
 		return $this;
 	}
@@ -245,7 +247,7 @@ class ffmpeg {
 			$nuy = 0;
 			$sum = count($this->split)-1;
 			// $lib = $this->split_as == "avi" ? '-map 0:v -map 0:a -map 0:s -c:v copy -c:a aac -b:a 84k -c:s mov_text' : '-c:v libx264 -c:a aac -b:a 84k';
-			$lib = $this->split_as == "avi" ? '-q:v 0 -c copy' : '-c:v libx264 -c:a aac -b:a 84k -crf 20';
+			$lib = $this->split_as == "avi" ? '-q:v 0 -c copy' : '-force_key_frames "expr:gte(t,0)" -c:v libx264 -c:a aac -b:a 84k -crf 20';
 			//$lib = '-c:v libx264 -b:v 2200k -c:a aac -b:a 96k';
 			// $lib = '-c:v libx264 -crf 20 -c:a aac -b:a 96k';
 			foreach ($this->split as $key => $val ) {
@@ -253,7 +255,7 @@ class ffmpeg {
 				$scns = null;
 				$seri = ($num+1).".ts";
 				$fstr = $sum > 0 ? $seri : "\"{$this->output}\"";				
-				$fcod = $sum > 0 ? ($this->split_as == "avi" ? " $lib":"-q:v 0") : ($this->split_as == "avi" ? "-q:v 0 -c copy":"-q:v 0 ") ;
+				$fcod = $sum > 0 ? ($this->split_as == "avi" ? " $lib":null) : ($this->split_as == "avi" ? "-q:v 0 -c copy":" ") ;
 				$tsmd = $this->split_as == "avi" ? null : "$lib ";
 				if(is_string($val[2]) && $val[2]){
 					$alts = preg_replace('~[\\\]~','/',$val[2]);
