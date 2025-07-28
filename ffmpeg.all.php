@@ -18,13 +18,13 @@ $num = 1127/30;
 // for hls parse\ffmpeg::convert("file_video.mp4")->hls()->export("folder/filename");
 //
 parse\ffmpeg::convert(function($x){
-    $folder = 'E:\Videos\Movies';
+    $folder = 'E:\Movies\Gaspel Noir\.soul';
     // $folder = 'I:\Videos\@Movies\ASIA\JAPAN\.18JP\comp-totte';
     //$folder = 'G:\@Backup_WWW\asin_ebook\edited\videobind_03_jav\uncomprez';
     //$folder = 'G:\@Backup_WWW\asin_ebook\edited\vidBind\@ENTITY';
     //$folder = 'C:\Action!\Video'; 
     // $folder = "D:/riza-ttnt/Videos";
-    $fname  = "Nonton Blue Lagoon- The Awakening (2012)";
+    $fname  = "022418-01";
     $sname  = "$fname";
     $fmove  = "$sname";
     // $fmove = "D:/$sname";
@@ -32,7 +32,7 @@ parse\ffmpeg::convert(function($x){
     // but precission depending on fps
     // $x->mode('avi'); // params : avi, m3u8_hls, image_gif, image_webp   
     // $x->fps(30);  // mode avi will ignored if have value
-    $x->scale(720);  // mode avi will ignored if have value
+    // $x->scale(720);  // mode avi will ignored if have value
     // $x->fixtimecut("-1.5","+1.5");
     
     // $x->moveto("$folder/$fname-proc.mp4")->save();   
@@ -40,10 +40,19 @@ parse\ffmpeg::convert(function($x){
     $x->param("$folder/$sname.mp4","$fname-cut.mp4")->split([
         // dont remove this example 
         //["00:00.000","00:00.000",true,"$fname-scane-%s.mp4"],
-        ["55:52.871","56:05.044"],
-        ["01:00:13.640","01:00:35.788"],
-        ["01:07:19.567","01:07:34.306"],
-        ["01:12:23.868","01:12:35.469",true,"$fmove-scane-%s.mp4"],
+        // ["11:25.587","15:53.551",true,"$fmove-scane-%s.mp4"],
+        // ["47:10.832","48:11.176"],
+        // ["49:26.119","50:05.270"],
+        // ["50:52.569","51:43.539",true,"$fmove-scane-%s.mp4"],
+        // ["59:36.851","01:00:26.242"],
+        // ["01:00:43.604","01:00:58.527"],
+        // ["01:01:40.807","01:03:08.814"],
+        // ["01:03:51.742","01:05:32.875",true,"$fmove-scane-%s.mp4"],
+        // ["01:05:32.875","01:08:10.471",true,"$fmove-scane-%s.mp4"],
+        ["45:33.469","50:12.667"],
+        ["56:12.752","56:27.992"],
+        ["59:27.093","01:00:37.118",true,"$fmove-scane-%s.mp4"],
+        ["01:00:37.118","01:04:38.818",true,"$fmove-scane-%s.mp4"],
     ])->print();
     // ])->print("D:");
 });
